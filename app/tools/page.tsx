@@ -13,8 +13,13 @@ export default function ToolsPage() {
   const tools = [
     {
       name: "Lethal Company",
-      description: "Quota calculator, terminal commands reference, and more.",
+      description: "Quota calculator, moons guide, terminal commands reference, and more.",
       href: "/tools/lethal-company/",
+    },
+    {
+      name: "Lethal Company Moons Guide",
+      description: "Moon tiers, risk factors, quick picks, and FAQ (version-agnostic).",
+      href: "/tools/lethal-company/moons/",
     },
     {
       name: "Lethal Company Terminal Commands",

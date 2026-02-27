@@ -19,6 +19,13 @@ const tools = [
     status: "available" as const,
   },
   {
+    title: "Moons Guide (Tiers + Risk + Quick Picks)",
+    description:
+      "Version-agnostic framework for choosing moons: tiers, risk factors, and quick picks.",
+    href: "/tools/lethal-company/moons/",
+    status: "available" as const,
+  },
+  {
     title: "Moon Risk Analyzer",
     description: "Coming soon.",
     href: "#",
