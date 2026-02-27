@@ -14,7 +14,7 @@ const tools = [
   {
     title: "Quota Calculator",
     description:
-      "Compute remaining scrap needed to hit quota (with sell ratio).",
+      "Plan how much scrap value to sell to safely hit quota (presets + buffer + runs/day).",
     href: "/tools/lethal-company/quota-calculator/",
     status: "available" as const,
   },
