@@ -7,23 +7,43 @@ export const metadata = {
 
 export default function ToolsPage() {
   return (
-    <div className="min-h-screen p-6">
-      <main className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 p-6">
+      <main className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <Link href="/" className="text-gray-600 hover:text-gray-900">
+          <Link
+            href="/"
+            className="text-zinc-400 hover:text-zinc-100 transition-colors"
+          >
             ← Back to home
           </Link>
         </div>
 
         <h1 className="text-4xl font-bold mb-4">Tools</h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-zinc-400 mb-8">
           A collection of useful tools and utilities.
         </p>
 
         <div className="space-y-4">
-          <div className="p-4 border border-gray-200 rounded-lg">
+          <Link
+            href="/tools/lethal-company/"
+            className="block rounded-xl border border-zinc-800 bg-zinc-950/40 p-5 hover:bg-zinc-950/60 transition-colors"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-semibold text-lg">Lethal Company</h2>
+                <p className="text-sm text-zinc-400 mt-1">
+                  Quota calculator and more (coming soon).
+                </p>
+              </div>
+              <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-300">
+                NEW
+              </span>
+            </div>
+          </Link>
+
+          <div className="rounded-xl border border-zinc-800 bg-zinc-950/20 p-5">
             <h2 className="font-semibold text-lg">More coming soon...</h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-zinc-400 mt-1">
               We are working on building helpful tools for developers and creators.
             </p>
           </div>

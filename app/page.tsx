@@ -24,6 +24,12 @@ export default function HomePage() {
             Tools
           </Link>
           <Link
+            href="/tools/lethal-company/"
+            className="px-6 py-3 border border-emerald-500/30 text-emerald-300 rounded-lg hover:bg-emerald-500/10 transition-colors"
+          >
+            Lethal Company
+          </Link>
+          <Link
             href="https://stardewprofit.com"
             className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
