@@ -12,6 +12,12 @@ export const metadata = buildMetadata({
 export default function ToolsPage() {
   const tools = [
     {
+      name: "SimpleClaw (OpenClaw one-click deploy)",
+      description:
+        "High-conversion landing page for deploying OpenClaw with reproducible, self-hosted defaults.",
+      href: "/simpleclaw/",
+    },
+    {
       name: "Lethal Company",
       description: "Quota calculator, moons guide, terminal commands reference, and more.",
       href: "/tools/lethal-company/",
