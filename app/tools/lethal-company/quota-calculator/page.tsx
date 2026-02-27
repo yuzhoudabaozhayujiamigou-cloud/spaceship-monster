@@ -1,15 +1,40 @@
 import Link from "next/link";
 
-export const metadata = {
-  title: "Lethal Company Quota Calculator | Spaceship Monster",
+import { buildMetadata } from "../../../_seo/metadata";
+import { SITE } from "../../../_seo/site";
+
+export const metadata = buildMetadata({
+  title: `Lethal Company Quota Calculator | ${SITE.name}`,
   description:
     "Calculate remaining scrap needed to hit your Lethal Company quota target, factoring in sell ratio.",
-};
+  path: "/tools/lethal-company/quota-calculator",
+});
 
 export default function LethalCompanyQuotaCalculatorPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
       <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Lethal Company Quota Calculator",
+              url: `${SITE.url}/tools/lethal-company/quota-calculator`,
+              applicationCategory: "Calculator",
+              operatingSystem: "Web",
+              description:
+                "Calculator for remaining scrap needed to hit your Lethal Company quota target.",
+              publisher: {
+                "@type": "Organization",
+                name: SITE.name,
+                url: SITE.url,
+              },
+            }),
+          }}
+        />
+
         <div className="mb-8 flex items-center justify-between gap-3">
           <Link
             href="/tools/lethal-company/"

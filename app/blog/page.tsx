@@ -1,9 +1,13 @@
 import Link from "next/link";
 
-export const metadata = {
-  title: "Blog - Spaceship Monster",
+import { buildMetadata } from "../_seo/metadata";
+import { SITE } from "../_seo/site";
+
+export const metadata = buildMetadata({
+  title: `Blog | ${SITE.name}`,
   description: "Thoughts on development, design, and technology.",
-};
+  path: "/blog",
+});
 
 export default function BlogPage() {
   return (

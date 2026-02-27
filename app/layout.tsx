@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
 
+import { SITE } from "./_seo/site";
+
 export const metadata: Metadata = {
-  title: "Spaceship Monster",
-  description: "Building useful tools and sharing insights about development, design, and technology.",
-  metadataBase: new URL("https://spaceship.monster"),
-  alternates: {
-    canonical: "/",
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: SITE.name,
+    template: `%s | ${SITE.name}`,
   },
+  description: SITE.defaultDescription,
 };
 
 export default function RootLayout({

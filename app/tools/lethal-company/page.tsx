@@ -1,10 +1,14 @@
 import Link from "next/link";
 
-export const metadata = {
-  title: "Lethal Company Tools | Spaceship Monster",
+import { buildMetadata } from "../../_seo/metadata";
+import { SITE } from "../../_seo/site";
+
+export const metadata = buildMetadata({
+  title: `Lethal Company Tools | ${SITE.name}`,
   description:
     "Handy Lethal Company tools: quota calculator now, more coming soon.",
-};
+  path: "/tools/lethal-company",
+});
 
 const tools = [
   {

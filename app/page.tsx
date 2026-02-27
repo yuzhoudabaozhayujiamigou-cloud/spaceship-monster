@@ -1,16 +1,40 @@
 import Link from "next/link";
 
-export const metadata = {
-  title: "Home - Spaceship Monster",
-  description: "Building useful tools and sharing insights about development, design, and technology.",
-};
+import { buildMetadata } from "./_seo/metadata";
+import { SITE } from "./_seo/site";
+
+export const metadata = buildMetadata({
+  title: `${SITE.name}`,
+  description: SITE.defaultDescription,
+  path: "/",
+});
 
 export default function HomePage() {
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE.name,
+      url: SITE.url,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE.name,
+      url: SITE.url,
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${SITE.url}/tools`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ];
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <main className="max-w-2xl w-full text-center">
         <h1 className="text-5xl font-bold mb-4 tracking-tight">
-          Spaceship Monster
+          {SITE.name}
         </h1>
         <p className="text-xl text-gray-600 mb-12">
           Building useful tools and sharing insights.
@@ -42,6 +66,11 @@ export default function HomePage() {
             Blog
           </Link>
         </nav>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </main>
     </div>
   );
