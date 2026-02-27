@@ -26,9 +26,10 @@ const tools = [
   },
   {
     title: "Terminal Commands Reference",
-    description: "Coming soon.",
-    href: "#",
-    status: "coming" as const,
+    description:
+      "Categorized terminal commands with notes, gotchas, and quick TOC jump links.",
+    href: "/tools/lethal-company/terminal-commands/",
+    status: "available" as const,
   },
 ];
 

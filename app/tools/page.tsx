@@ -13,8 +13,13 @@ export default function ToolsPage() {
   const tools = [
     {
       name: "Lethal Company",
-      description: "Quota calculator and more (coming soon).",
+      description: "Quota calculator, terminal commands reference, and more.",
       href: "/tools/lethal-company/",
+    },
+    {
+      name: "Lethal Company Terminal Commands",
+      description: "Categorized terminal commands reference with notes and TOC.",
+      href: "/tools/lethal-company/terminal-commands/",
     },
   ];
 
