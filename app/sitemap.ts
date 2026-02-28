@@ -45,5 +45,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/blog/lethal-company-beginner-survival-guide`,
+      lastModified: lastModForPath(
+        "app/blog/lethal-company-beginner-survival-guide/page.tsx",
+      ),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
   ];
 }

@@ -9,6 +9,15 @@ export const metadata = buildMetadata({
   path: "/blog",
 });
 
+const posts = [
+  {
+    href: "/blog/lethal-company-beginner-survival-guide",
+    title: "Lethal Company Beginner Survival Guide: 10 Tips to Stop Dying",
+    description:
+      "New to Lethal Company? 10 survival tips to live longer, hit quota, and stop wiping on day one.",
+  },
+];
+
 export default function BlogPage() {
   return (
     <div className="min-h-screen p-6">
@@ -25,12 +34,19 @@ export default function BlogPage() {
         </p>
 
         <div className="space-y-4">
-          <div className="p-4 border border-gray-200 rounded-lg">
-            <h2 className="font-semibold text-lg">More coming soon...</h2>
-            <p className="text-gray-600 mt-1">
-              We are working on writing helpful articles and tutorials.
-            </p>
-          </div>
+          {posts.map((post) => (
+            <article
+              key={post.href}
+              className="p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+            >
+              <h2 className="font-semibold text-lg">
+                <Link href={post.href} className="hover:underline">
+                  {post.title}
+                </Link>
+              </h2>
+              <p className="text-gray-600 mt-1">{post.description}</p>
+            </article>
+          ))}
         </div>
       </main>
     </div>
