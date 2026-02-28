@@ -34,6 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/tools/lethal-company/bestiary`,
+      lastModified: lastModForPath("app/tools/lethal-company/bestiary/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: lastModForPath("app/blog/page.tsx"),
       changeFrequency: "weekly",

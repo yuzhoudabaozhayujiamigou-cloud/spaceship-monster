@@ -19,6 +19,13 @@ const tools = [
     status: "available" as const,
   },
   {
+    title: "Bestiary (Monsters + Survival Guide)",
+    description:
+      "Every monster, behavior cues, threat level, and the safest survival playbook.",
+    href: "/tools/lethal-company/bestiary/",
+    status: "available" as const,
+  },
+  {
     title: "Moons Guide (Tiers + Risk + Quick Picks)",
     description:
       "Version-agnostic framework for choosing moons: tiers, risk factors, and quick picks.",
