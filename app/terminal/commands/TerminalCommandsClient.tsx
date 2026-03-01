@@ -42,6 +42,7 @@ export default function TerminalCommandsClient({
 }) {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CommandCategory | "All">("All");
+  const [toast, setToast] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = normalize(query);
@@ -64,13 +65,21 @@ export default function TerminalCommandsClient({
   async function copyToClipboard(text: string) {
     try {
       await navigator.clipboard.writeText(text);
+      setToast("Copied!");
+      window.setTimeout(() => setToast(null), 1800);
     } catch {
-      // ignore
+      setToast("Copy failed");
+      window.setTimeout(() => setToast(null), 1800);
     }
   }
 
   return (
     <>
+      {toast ? (
+        <div className="fixed left-1/2 top-5 z-50 -translate-x-1/2 rounded-full border border-zinc-700 bg-zinc-950/90 px-4 py-2 text-xs font-mono text-zinc-100 shadow-lg">
+          {toast}
+        </div>
+      ) : null}
       <section className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-950/30 p-5">
         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="flex-1">
