@@ -114,11 +114,11 @@ export default function LethalCompanyQuotaCalculatorPage() {
 
         <header className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            Lethal Company Quota Calculator
+            Lethal Company Quota Calculator (Vanilla)
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            Plan how much scrap value you need to sell to safely hit quota.
-            Choose a preset or dial in your own assumptions.
+            Estimate how much scrap value you need to sell to safely clear quota.
+            Includes buffer presets, runs-per-day pacing, and a copyable plan you can share with your team.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
@@ -132,7 +132,19 @@ export default function LethalCompanyQuotaCalculatorPage() {
               href="/tools/lethal-company/terminal-commands"
               className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
             >
-              Open terminal commands
+              Terminal commands
+            </Link>
+            <Link
+              href="/tools/lethal-company/moons"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Moons & risk notes
+            </Link>
+            <Link
+              href="/tools/lethal-company/bestiary"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Bestiary
             </Link>
           </div>
         </header>
@@ -301,23 +313,48 @@ function QuotaCalculator() {
 
         <Result />
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4">
+        <div className="mt-6 flex flex-col gap-3 rounded-xl border border-zinc-800 bg-zinc-950/60 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-zinc-400">
-            Want more ship terminal help?{" "}
-            <Link
-              href="/tools/lethal-company/terminal-commands"
-              className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-300"
-            >
-              Open terminal commands
-            </Link>
+            Shareable plan is generated live. Use it for quick team alignment — then adjust based on your moon choice.
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Link
+                href="/tools/lethal-company/terminal-commands"
+                className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-300"
+              >
+                Terminal commands
+              </Link>
+              <span className="text-zinc-600">·</span>
+              <Link
+                href="/tools/lethal-company/moons"
+                className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-300"
+              >
+                Moons
+              </Link>
+              <span className="text-zinc-600">·</span>
+              <Link
+                href="/tools/lethal-company/bestiary"
+                className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-300"
+              >
+                Bestiary
+              </Link>
+            </div>
           </div>
-          <button
-            type="button"
-            className="rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
-            data-lc-copy
-          >
-            Copy plan
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+              data-lc-copy
+            >
+              Copy plan
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+              data-lc-copy-link
+            >
+              Copy link
+            </button>
+          </div>
         </div>
 
         <p className="mt-3 text-xs text-zinc-500">
@@ -527,6 +564,41 @@ function Result() {
       copyBtn.dataset.plan = 'Sell about ' + fmtInt(r.totalToSell) + ' total (quota ' + fmtInt(r.quota) + ' + ' + r.bufferPct + '% buffer). ' +
         'At ~' + fmtInt(r.scrapPerRun) + '/run, that\'s ~' + r.runsNeeded + ' runs (~' + r.runsPerDay + '/day for ' + r.days + ' days).';
     }
+
+    // Apply query params (shareable link) once on load.
+    if (!render._lcInit) {
+      render._lcInit = true;
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var quotaQ = params.get('quota');
+        var daysQ = params.get('days');
+        var bufferQ = params.get('buffer');
+        var sprQ = params.get('spr');
+
+        if (quotaQ != null && quotaQ !== '') quotaEl.value = String(Math.max(0, num(quotaQ)));
+        if (daysQ != null && daysQ !== '') daysEl.value = String(Math.max(1, Math.floor(num(daysQ))));
+        if (bufferQ != null && bufferQ !== '') bufferEl.value = String(clamp(num(bufferQ), 0, 50));
+        if (sprQ != null && sprQ !== '') {
+          presetEl.value = 'custom';
+          scrapCustomEl.value = String(Math.max(0, Math.round(num(sprQ))));
+        }
+      } catch (e) {
+        // best effort
+      }
+
+      // re-render after applying query params
+      var r2 = compute();
+      readoutBuffer.textContent = fmtInt(r2.bufferValue);
+      readoutTotal.textContent = fmtInt(r2.totalToSell);
+      readoutRuns.textContent = r2.scrapPerRun > 0 ? String(r2.runsNeeded) : '—';
+      readoutPerDay.textContent = r2.scrapPerRun > 0 ? String(r2.runsPerDay) : '—';
+      readoutStatus.textContent = r2.status;
+
+      if (copyBtn) {
+        copyBtn.dataset.plan = 'Sell about ' + fmtInt(r2.totalToSell) + ' total (quota ' + fmtInt(r2.quota) + ' + ' + r2.bufferPct + '% buffer). ' +
+          'At ~' + fmtInt(r2.scrapPerRun) + '/run, that\'s ~' + r2.runsNeeded + ' runs (~' + r2.runsPerDay + '/day for ' + r2.days + ' days).';
+      }
+    }
   }
 
   function applyPreset(btn) {
@@ -553,17 +625,35 @@ function Result() {
     bufferEl.addEventListener(evt, render);
   });
 
+  var copyLinkBtn = document.querySelector('[data-lc-copy-link]');
+
+  async function copyWithFeedback(btn, text, okLabel, failLabel, resetLabel) {
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = okLabel;
+      setTimeout(function(){ btn.textContent = resetLabel; }, 1200);
+    } catch (e) {
+      btn.textContent = failLabel;
+      setTimeout(function(){ btn.textContent = resetLabel; }, 1200);
+    }
+  }
+
   if (copyBtn) {
     copyBtn.addEventListener('click', async function () {
       var text = copyBtn.dataset.plan || '';
-      try {
-        await navigator.clipboard.writeText(text);
-        copyBtn.textContent = 'Copied!';
-        setTimeout(function(){ copyBtn.textContent = 'Copy plan'; }, 1200);
-      } catch (e) {
-        copyBtn.textContent = 'Copy failed';
-        setTimeout(function(){ copyBtn.textContent = 'Copy plan'; }, 1200);
-      }
+      await copyWithFeedback(copyBtn, text, 'Copied!', 'Copy failed', 'Copy plan');
+    });
+  }
+
+  if (copyLinkBtn) {
+    copyLinkBtn.addEventListener('click', async function () {
+      var r = compute();
+      var url = new URL(window.location.href);
+      url.searchParams.set('quota', String(r.quota));
+      url.searchParams.set('days', String(r.days));
+      url.searchParams.set('buffer', String(r.bufferPct));
+      url.searchParams.set('spr', String(Math.round(r.scrapPerRun)));
+      await copyWithFeedback(copyLinkBtn, url.toString(), 'Link copied!', 'Copy failed', 'Copy link');
     });
   }
 
