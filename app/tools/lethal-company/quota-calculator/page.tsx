@@ -135,6 +135,12 @@ export default function LethalCompanyQuotaCalculatorPage() {
               Terminal commands
             </Link>
             <Link
+              href="/guides/profit-quota-formula"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Quota formula (guide)
+            </Link>
+            <Link
               href="/tools/lethal-company/moons"
               className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
             >
