@@ -6,51 +6,101 @@ import { SITE } from "../../_seo/site";
 export const metadata = buildMetadata({
   title: `Lethal Company Tools | ${SITE.name}`,
   description:
-    "Handy Lethal Company tools: quota calculator now, more coming soon.",
+    "Lethal Company tool hub: terminal commands, moons guide, quota calculator, and bestiary.",
   path: "/tools/lethal-company",
 });
 
-const tools = [
+const features = [
+  {
+    title: "Terminal Commands",
+    description:
+      "Categorized command reference with practical notes, shortcuts, and common gotchas.",
+    href: "/tools/lethal-company/terminal-commands/",
+    tag: "Reference",
+  },
+  {
+    title: "Moons Guide",
+    description:
+      "Version-agnostic framework for moon tiers, risk factors, and quick-pick planning.",
+    href: "/tools/lethal-company/moons/",
+    tag: "Planning",
+  },
   {
     title: "Quota Calculator",
     description:
-      "Plan how much scrap value to sell to safely hit quota (presets + buffer + runs/day).",
+      "Estimate how much value to sell with preset buffers and runs-per-day pacing.",
     href: "/tools/lethal-company/quota-calculator/",
-    status: "available" as const,
+    tag: "Calculator",
   },
   {
-    title: "Bestiary (Monsters + Survival Guide)",
+    title: "Bestiary",
     description:
-      "Every monster, behavior cues, threat level, and the safest survival playbook.",
+      "Monster behavior patterns, threat levels, and survival tactics you can use in live runs.",
     href: "/tools/lethal-company/bestiary/",
-    status: "available" as const,
+    tag: "Survival",
+  },
+];
+
+const faqs = [
+  {
+    question: "Which page should I start with as a new crew?",
+    answer:
+      "Start with the Quota Calculator for a stable target, then use the Moons Guide and Terminal Commands to reduce run variance.",
   },
   {
-    title: "Moons Guide (Tiers + Risk + Quick Picks)",
-    description:
-      "Version-agnostic framework for choosing moons: tiers, risk factors, and quick picks.",
-    href: "/tools/lethal-company/moons/",
-    status: "available" as const,
+    question: "Are these pages vanilla-focused or modded?",
+    answer:
+      "The guidance is vanilla-first, but most planning concepts still apply to modded runs when you adjust values to your server setup.",
   },
   {
-    title: "Moon Risk Analyzer",
-    description: "Coming soon.",
-    href: "#",
-    status: "coming" as const,
+    question: "How do these tools work together during a run cycle?",
+    answer:
+      "Set your quota target, choose safer moon profiles, execute ship-side commands quickly, and review monster risks for cleaner exits.",
   },
   {
-    title: "Terminal Commands Reference",
-    description:
-      "Categorized terminal commands with notes, gotchas, and quick TOC jump links.",
-    href: "/tools/lethal-company/terminal-commands/",
-    status: "available" as const,
+    question: "Can I use these references mid-run?",
+    answer:
+      "Yes. Each page is built as a compact, scan-friendly reference so you can grab what you need without digging.",
   },
 ];
 
 export default function LethalCompanyToolsPage() {
+  const itemListStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: features.map((feature, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: feature.title,
+      url: `${SITE.url}${feature.href.replace(/\/$/, "")}`,
+    })),
+  };
+
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
-      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+      <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListStructuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+        />
+
         <div className="mb-8">
           <Link
             href="/tools/"
@@ -65,56 +115,56 @@ export default function LethalCompanyToolsPage() {
             Lethal Company Tools
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            Dark, fast utilities for quota runs. More tools soon.
+            A single hub for the core Lethal Company references: route faster,
+            plan quota safely, and reduce wipe risk.
+          </p>
+          <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
+            Use this page as your quick launchpad between planning, ship commands,
+            and survival references.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-4">
-          {tools.map((tool) => (
-            <div
-              key={tool.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {features.map((feature) => (
+            <article
+              key={feature.title}
+              className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5 transition-colors hover:bg-zinc-950/60"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold">{tool.title}</h2>
+                  <h2 className="text-lg font-semibold">{feature.title}</h2>
                   <p className="mt-2 text-sm text-zinc-400">
-                    {tool.description}
+                    {feature.description}
                   </p>
                 </div>
-
-                {tool.status === "available" ? (
-                  <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-300">
-                    AVAILABLE
-                  </span>
-                ) : (
-                  <span className="shrink-0 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-mono text-amber-300">
-                    COMING SOON
-                  </span>
-                )}
+                <span className="shrink-0 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-mono text-zinc-300">
+                  {feature.tag}
+                </span>
               </div>
 
               <div className="mt-4">
-                {tool.status === "available" ? (
-                  <Link
-                    href={tool.href}
-                    className="inline-flex items-center rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-white transition-colors"
-                  >
-                    Open
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="cursor-not-allowed inline-flex items-center rounded-lg border border-zinc-800 bg-[#0a0a0a] px-4 py-2 text-sm font-medium text-zinc-500"
-                    disabled
-                  >
-                    Coming soon
-                  </button>
-                )}
+                <Link
+                  href={feature.href}
+                  className="inline-flex items-center rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
+                >
+                  Open tool
+                </Link>
               </div>
-            </div>
+            </article>
           ))}
-        </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6">
+          <h2 className="text-xl font-semibold">FAQ</h2>
+          <div className="mt-4 space-y-4">
+            {faqs.map((faq) => (
+              <div key={faq.question} className="rounded-xl border border-zinc-800/80 bg-zinc-950/30 p-4">
+                <h3 className="text-sm font-semibold text-zinc-100">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
