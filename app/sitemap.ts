@@ -46,9 +46,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/tools/lethal-company/moons/tier-list`,
+      lastModified: lastModForPath(
+        "app/tools/lethal-company/moons/tier-list/page.tsx",
+      ),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/tools/lethal-company/terminal-commands`,
       lastModified: lastModForPath(
         "app/tools/lethal-company/terminal-commands/page.tsx",
+      ),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tools/lethal-company/terminal/shortcuts-abbreviations`,
+      lastModified: lastModForPath(
+        "app/tools/lethal-company/terminal/shortcuts-abbreviations/page.tsx",
       ),
       changeFrequency: "monthly",
       priority: 0.6,
