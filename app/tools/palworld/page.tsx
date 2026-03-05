@@ -6,7 +6,7 @@ import { SITE } from "../../_seo/site";
 export const metadata = buildMetadata({
   title: `Palworld Tools | ${SITE.name}`,
   description:
-    "Palworld tool hub: breeding calculator MVP live, plus planned paldeck explorer, IV checker, and path planner.",
+    "Palworld tool hub: breeding calculator and paldeck MVP live, plus planned IV checker and path planner.",
   path: "/tools/palworld",
 });
 
@@ -20,12 +20,12 @@ const features = [
     tag: "Live",
   },
   {
-    title: "Paldeck Explorer",
+    title: "Paldeck Explorer (MVP)",
     description:
       "Search by element, work suitability, partner skills, and progression tags.",
-    href: "#paldeck",
-    status: "planned" as const,
-    tag: "Planned",
+    href: "/tools/palworld/paldeck/",
+    status: "available" as const,
+    tag: "Live",
   },
   {
     title: "IV Checker",
@@ -49,7 +49,7 @@ const faqs = [
   {
     question: "What is included in this Palworld MVP?",
     answer:
-      "The first live tool is the breeding calculator with a static placeholder combos dataset and client-side search/filter support.",
+      "The first live tools are the breeding calculator and paldeck explorer, both using static seed data and client-side filtering.",
   },
   {
     question: "Why launch with placeholder data first?",
@@ -59,7 +59,7 @@ const faqs = [
   {
     question: "Will this hub expand to a full tool suite?",
     answer:
-      "Yes. The planned next tools are paldeck explorer, IV checker, and a base path planner connected to richer game data.",
+      "Yes. The planned next tools are IV checker and base path planner, plus deeper paldeck and breeding data integrations.",
   },
 ];
 
@@ -116,8 +116,8 @@ export default function PalworldToolsPage() {
             Palworld Tools
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            Tool cluster MVP for fast team planning. Start with breeding, then
-            expand into paldeck browsing, IV checks, and route planning.
+            Tool cluster MVP for fast team planning. Start with breeding and
+            paldeck browsing, then expand into IV checks and route planning.
           </p>
         </header>
 
@@ -159,16 +159,7 @@ export default function PalworldToolsPage() {
           ))}
         </section>
 
-        <section className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <article
-            id="paldeck"
-            className="rounded-2xl border border-zinc-800 bg-zinc-950/30 p-5"
-          >
-            <h3 className="text-sm font-semibold text-zinc-100">Paldeck Explorer</h3>
-            <p className="mt-2 text-sm text-zinc-400">
-              Indexed pal list with filters for work traits and progression use.
-            </p>
-          </article>
+        <section className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <article
             id="iv-checker"
             className="rounded-2xl border border-zinc-800 bg-zinc-950/30 p-5"

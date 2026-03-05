@@ -68,6 +68,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/tools/palworld/paldeck`,
+      lastModified: lastModForPath("app/tools/palworld/paldeck/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: lastModForPath("app/blog/page.tsx"),
       changeFrequency: "weekly",
