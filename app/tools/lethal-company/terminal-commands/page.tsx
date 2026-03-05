@@ -2,475 +2,479 @@ import Link from "next/link";
 
 import { buildMetadata } from "../../../_seo/metadata";
 import { SITE } from "../../../_seo/site";
+import TerminalCommandsToolClient, {
+  type TerminalCommandEntry,
+} from "./TerminalCommandsToolClient";
 
 export const metadata = buildMetadata({
-  title: `Lethal Company Terminal Commands Reference | ${SITE.name}`,
+  title: `Lethal Company Terminal Commands (Searchable + Copyable) | ${SITE.name}`,
   description:
-    "Quick, categorized reference of Lethal Company terminal commands with notes and common gotchas.",
+    "Copyable full Lethal Company terminal command list with search, filters, practical notes, and FAQ.",
   path: "/tools/lethal-company/terminal-commands",
 });
 
-type CommandItem = {
-  command: string;
-  purpose: string;
-  notes: string;
-};
-
-type CommandSection = {
-  id: string;
-  title: string;
-  description?: string;
-  items: CommandItem[];
-};
-
-const sections: CommandSection[] = [
+const COMMANDS: TerminalCommandEntry[] = [
   {
-    id: "travel",
-    title: "Travel & Routing",
-    description: "Find moons, set a destination, and handle confirmations.",
-    items: [
-      {
-        command: "moons",
-        purpose: "Lists moons you can route to (and their costs, if applicable).",
-        notes:
-          "Moon availability/costs can vary by version; always confirm in-game.",
-      },
-      {
-        command: "route <moon>",
-        purpose: "Sets your destination moon.",
-        notes:
-          "Usually requires confirmation; routing does not automatically launch.",
-      },
-      {
-        command: "confirm",
-        purpose: "Confirms certain actions (commonly routing/travel-related prompts).",
-        notes:
-          "If you typed a command and nothing happens, you may be at a confirm prompt.",
-      },
-      {
-        command: "cancel",
-        purpose: "Cancels a pending prompt/selection (if supported).",
-        notes:
-          "Not always available; some prompts only accept confirm.",
-      },
-    ],
+    id: "cmd-moons",
+    command: "moons",
+    category: "Travel & Routing",
+    source: "Core",
+    purpose: "Lists moons you can route to (and their costs, depending on version).",
+    notes: "Moon availability/costs vary by version and mods; always confirm in-game.",
   },
   {
-    id: "info",
-    title: "Info & Scanning",
-    description: "Quick readouts and lightweight recon from the terminal.",
-    items: [
-      {
-        command: "help",
-        purpose: "Shows a list of available commands (varies by context).",
-        notes:
-          "If you are unsure what is valid in your current terminal state, start here.",
-      },
-      {
-        command: "scan",
-        purpose:
-          "Pings the current area for info (commonly used to get a quick readout).",
-        notes:
-          "If scan output seems limited, that can be normal; it is not a full map reveal.",
-      },
-    ],
+    id: "cmd-route",
+    command: "route <moon>",
+    category: "Travel & Routing",
+    source: "Core",
+    purpose: "Sets your destination moon.",
+    notes: "Usually requires a confirmation prompt before travel completes.",
   },
   {
-    id: "store",
-    title: "Store & Purchases",
-    description:
-      "Common store interactions. Item names depend on the in-game store rotation/version.",
-    items: [
-      {
-        command: "store",
-        purpose: "Opens the company store listing.",
-        notes:
-          "Use this to confirm exact item names before buying.",
-      },
-      {
-        command: "buy <item> [quantity]",
-        purpose: "Purchases an item from the store.",
-        notes:
-          "Spelling matters; items are whatever the in-game store currently offers.",
-      },
-      {
-        command: "credits",
-        purpose: "Shows your current credits (store currency).",
-        notes:
-          "If this does not work in your build, check the store screen instead.",
-      },
-    ],
+    id: "cmd-confirm",
+    command: "confirm",
+    category: "Travel & Routing",
+    source: "Core",
+    purpose: "Confirms pending terminal actions.",
+    notes: "If a command seems stuck, you may still be at a confirm prompt.",
   },
   {
-    id: "basics",
-    title: "Run Basics (Common Items to Buy)",
-    description:
-      "Examples of typical store buys. Only use these if your store shows the exact item name.",
-    items: [
-      {
-        command: "buy walkie",
-        purpose: "Buys a walkie-talkie (if available in your store).",
-        notes:
-          "Item names vary (e.g. walkie-talkie vs walkie); copy what your store shows.",
-      },
-      {
-        command: "buy flashlight",
-        purpose: "Buys a flashlight (if available).",
-        notes:
-          "There are multiple flashlight types in some versions/modpacks.",
-      },
-      {
-        command: "buy shovel",
-        purpose: "Buys a shovel (if available).",
-        notes:
-          "Useful for some threats; costs can be steep early on.",
-      },
-      {
-        command: "buy lockpicker",
-        purpose: "Buys a lockpicker (if available).",
-        notes:
-          "Spelling is often the gotcha; check the store list.",
-      },
-      {
-        command: "buy stun grenade",
-        purpose: "Buys a stun grenade (if available).",
-        notes:
-          "Friendly fire / chaos potential; coordinate before throwing.",
-      },
-      {
-        command: "buy boom box",
-        purpose: "Buys a boombox (if available).",
-        notes:
-          "Mostly utility/fun; may draw attention depending on situation.",
-      },
-      {
-        command: "buy extension ladder",
-        purpose: "Buys an extension ladder (if available).",
-        notes:
-          "Some builds only have one ladder item; use the exact store name.",
-      },
-      {
-        command: "buy radar booster",
-        purpose: "Buys a radar booster (if available).",
-        notes:
-          "Pairs with ship monitoring; not every run needs it.",
-      },
-      {
-        command: "buy tzp-inhalant",
-        purpose: "Buys TZP inhalant (if available).",
-        notes:
-          "Name punctuation matters; in doubt, paste from store list.",
-      },
-      {
-        command: "buy jetpack",
-        purpose: "Buys a jetpack (if available).",
-        notes:
-          "Expensive; learn controls in a safe area first.",
-      },
-      {
-        command: "buy ladder",
-        purpose: "Buys a ladder (if available).",
-        notes:
-          "Only if your store carries it; item availability varies.",
-      },
-    ],
+    id: "cmd-cancel",
+    command: "cancel",
+    category: "Travel & Routing",
+    source: "Core",
+    purpose: "Cancels a pending selection in supported contexts.",
+    notes: "Not all prompts support cancel in every build.",
   },
   {
-    id: "ship",
-    title: "Ship Systems",
-    description:
-      "Commands tied to the ship terminal: monitor, doors, teleporter, and other ship-side actions.",
-    items: [
-      {
-        command: "view monitor",
-        purpose: "Shows the player monitor (useful for finding teammates).",
-        notes:
-          "Exact wording can differ by version; use help if your build uses a different phrase.",
-      },
-      {
-        command: "switch",
-        purpose: "Cycles the monitor camera feed.",
-        notes:
-          "Most useful while someone is inside; keep cycling to find the correct feed.",
-      },
-      {
-        command: "doors",
-        purpose: "Toggles facility doors from the terminal (when applicable).",
-        notes:
-          "Requires being on a moon/inside context; can be situational and not always available.",
-      },
-      {
-        command: "open",
-        purpose: "Opens the currently selected door system (context-dependent).",
-        notes:
-          "Often paired with door controls; if it does nothing, you may need to select a door first.",
-      },
-      {
-        command: "close",
-        purpose: "Closes the currently selected door system (context-dependent).",
-        notes:
-          "Door control can grief teammates; coordinate in voice chat.",
-      },
-      {
-        command: "teleporter",
-        purpose: "Activates the ship teleporter (if installed).",
-        notes:
-          "Teleporter targets can be finicky; make sure the intended teammate is selected/eligible.",
-      },
-      {
-        command: "inverse teleporter",
-        purpose: "Activates the inverse teleporter (if installed).",
-        notes:
-          "High risk; coordinate before sending someone in.",
-      },
-    ],
+    id: "cmd-help",
+    command: "help",
+    category: "Info & Scan",
+    source: "Core",
+    purpose: "Shows available commands for the current terminal state.",
+    notes: "Best fallback when command support differs by version.",
   },
   {
-    id: "company",
-    title: "Company, Quota & Selling",
-    description:
-      "Things you do between moons: quota info and selling loops.",
-    items: [
-      {
-        command: "company",
-        purpose: "Shows company-related info / takes you to the company context.",
-        notes:
-          "In some versions, this is mostly used at the company building.",
-      },
-      {
-        command: "quota",
-        purpose: "Shows current quota and deadline info.",
-        notes:
-          "If not available, the relevant info is usually visible on ship UI.",
-      },
-      {
-        command: "deposit",
-        purpose: "Deposits sold scrap value toward quota (company building context).",
-        notes:
-          "Some actions are only possible at the company; you may need to be routed there.",
-      },
-      {
-        command: "sell",
-        purpose: "Starts a selling interaction (company building context).",
-        notes:
-          "Exact prompts vary; follow on-screen instructions.",
-      },
-      {
-        command: "balance",
-        purpose: "Shows current balance/credits status (context-dependent).",
-        notes:
-          "If it fails, rely on store/credits readouts; builds differ.",
-      },
-    ],
+    id: "cmd-scan",
+    command: "scan",
+    category: "Info & Scan",
+    source: "Core",
+    purpose: "Performs a quick scan/readout from the current context.",
+    notes: "Useful for rapid ship-side checks, not a full intel dump.",
   },
   {
-    id: "communication",
-    title: "Communication & Notes",
-    description:
-      "Terminal is often used as a hub to coordinate routes and quick info.",
-    items: [
-      {
-        command: "ping",
-        purpose: "Basic attention-getter (context-dependent).",
-        notes:
-          "Not present in every build; treat as optional.",
-      },
-      {
-        command: "broadcast <message>",
-        purpose: "Sends a message to teammates (if supported in your version/modpack).",
-        notes:
-          "Marked as community/modded; not a guaranteed vanilla command.",
-      },
-      {
-        command: "notes",
-        purpose: "Opens a notes-like screen (if supported).",
-        notes:
-          "Often seen as a modded/quality-of-life feature.",
-      },
-    ],
+    id: "cmd-store",
+    command: "store",
+    category: "Store & Purchases",
+    source: "Core",
+    purpose: "Opens the company store listing.",
+    notes: "Use this first to verify exact item names in your run.",
   },
   {
-    id: "community-modded",
-    title: "Community Shorthand / Modded (Not Guaranteed Vanilla)",
-    description:
-      "These are terms or commands players commonly mention. Only use them if your setup/version supports them.",
-    items: [
-      {
-        command: "seed",
-        purpose: "Shows/sets run seed (modded / community feature).",
-        notes:
-          "Not vanilla in most versions; typically a mod option.",
-      },
-      {
-        command: "weather",
-        purpose: "Shows moon weather details (often modded).",
-        notes:
-          "In vanilla, weather is usually shown in moon listings rather than a separate command.",
-      },
-      {
-        command: "prices",
-        purpose: "Prints store prices in a compact list (often shorthand).",
-        notes:
-          "If you want this in vanilla, use store and read the list.",
-      },
-      {
-        command: "scan moon",
-        purpose: "Asks for a moon info dump (community shorthand).",
-        notes:
-          "In vanilla, scan is context-based; moon info is typically from moons/route UI.",
-      },
-    ],
+    id: "cmd-buy-item",
+    command: "buy <item> [quantity]",
+    category: "Store & Purchases",
+    source: "Core",
+    purpose: "Purchases items from the store.",
+    notes: "Item spelling and punctuation must match store labels.",
+  },
+  {
+    id: "cmd-credits",
+    command: "credits",
+    category: "Store & Purchases",
+    source: "Core",
+    purpose: "Shows current credits in supported contexts.",
+    notes: "If unavailable, rely on store or UI readouts.",
+  },
+  {
+    id: "cmd-buy-walkie",
+    command: "buy walkie",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a walkie-talkie when available.",
+    notes: "Some builds require full item names like walkie-talkie.",
+  },
+  {
+    id: "cmd-buy-flashlight",
+    command: "buy flashlight",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a flashlight.",
+    notes: "Check for variants before buying in modded packs.",
+  },
+  {
+    id: "cmd-buy-shovel",
+    command: "buy shovel",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a shovel for melee utility.",
+    notes: "Early runs may prefer utility buys over combat buys.",
+  },
+  {
+    id: "cmd-buy-lockpicker",
+    command: "buy lockpicker",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a lockpicker where available.",
+    notes: "Watch spelling closely.",
+  },
+  {
+    id: "cmd-buy-stun-grenade",
+    command: "buy stun grenade",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a stun grenade.",
+    notes: "Coordinate usage to avoid team disruption.",
+  },
+  {
+    id: "cmd-buy-boom-box",
+    command: "buy boom box",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a boombox.",
+    notes: "Can add chaos; use intentionally.",
+  },
+  {
+    id: "cmd-buy-extension-ladder",
+    command: "buy extension ladder",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys an extension ladder when present.",
+    notes: "Names can vary between versions.",
+  },
+  {
+    id: "cmd-buy-radar-booster",
+    command: "buy radar booster",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a radar booster.",
+    notes: "Most useful with active ship support workflows.",
+  },
+  {
+    id: "cmd-buy-tzp",
+    command: "buy tzp-inhalant",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys TZP inhalant.",
+    notes: "Punctuation matters on some builds.",
+  },
+  {
+    id: "cmd-buy-jetpack",
+    command: "buy jetpack",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a jetpack.",
+    notes: "High-cost item; practice handling in safe spots first.",
+  },
+  {
+    id: "cmd-buy-ladder",
+    command: "buy ladder",
+    category: "Common Store Buys",
+    source: "Core",
+    purpose: "Buys a ladder item if listed.",
+    notes: "Availability depends on version/store rotation.",
+  },
+  {
+    id: "cmd-view-monitor",
+    command: "view monitor",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Opens the ship monitor feed.",
+    notes: "Core command for ship-side tracking and rescue calls.",
+  },
+  {
+    id: "cmd-switch",
+    command: "switch",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Cycles monitor camera/player feed.",
+    notes: "Use repeatedly during active interior runs.",
+  },
+  {
+    id: "cmd-doors",
+    command: "doors",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Toggles facility door controls when available.",
+    notes: "Only relevant in specific contexts.",
+  },
+  {
+    id: "cmd-open",
+    command: "open",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Opens selected door/system in supported states.",
+    notes: "Often paired with door control context selection.",
+  },
+  {
+    id: "cmd-close",
+    command: "close",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Closes selected door/system in supported states.",
+    notes: "Coordinate callouts to avoid griefing teammates.",
+  },
+  {
+    id: "cmd-teleporter",
+    command: "teleporter",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Activates the teleporter when installed.",
+    notes: "Targeting behavior varies; confirm selection before firing.",
+  },
+  {
+    id: "cmd-inverse-teleporter",
+    command: "inverse teleporter",
+    category: "Ship Systems",
+    source: "Core",
+    purpose: "Activates inverse teleporter when installed.",
+    notes: "High-risk action; use only with clear role coordination.",
+  },
+  {
+    id: "cmd-company",
+    command: "company",
+    category: "Quota & Selling",
+    source: "Core",
+    purpose: "Shows company context/info depending on version.",
+    notes: "Commonly used in selling loops and quota checks.",
+  },
+  {
+    id: "cmd-quota",
+    command: "quota",
+    category: "Quota & Selling",
+    source: "Core",
+    purpose: "Shows quota target and timeline info.",
+    notes: "Use with the quota calculator to plan buffer.",
+  },
+  {
+    id: "cmd-deposit",
+    command: "deposit",
+    category: "Quota & Selling",
+    source: "Core",
+    purpose: "Deposits sold value toward quota.",
+    notes: "Usually requires company-building context.",
+  },
+  {
+    id: "cmd-sell",
+    command: "sell",
+    category: "Quota & Selling",
+    source: "Core",
+    purpose: "Starts selling flow in company context.",
+    notes: "Prompt flow can differ by build.",
+  },
+  {
+    id: "cmd-balance",
+    command: "balance",
+    category: "Quota & Selling",
+    source: "Core",
+    purpose: "Displays current balance/credits state.",
+    notes: "If unavailable, check store or HUD alternatives.",
+  },
+  {
+    id: "cmd-ping",
+    command: "ping",
+    category: "Communication",
+    source: "Community/Modded",
+    purpose: "Attention ping in supported setups.",
+    notes: "Not guaranteed in vanilla.",
+  },
+  {
+    id: "cmd-broadcast",
+    command: "broadcast <message>",
+    category: "Communication",
+    source: "Community/Modded",
+    purpose: "Sends a message in builds that support broadcast commands.",
+    notes: "Usually community/modded behavior.",
+  },
+  {
+    id: "cmd-notes",
+    command: "notes",
+    category: "Communication",
+    source: "Community/Modded",
+    purpose: "Opens notes-like interface in supported builds.",
+    notes: "Commonly seen in QoL-mod workflows.",
+  },
+  {
+    id: "cmd-seed",
+    command: "seed",
+    category: "Community/Modded",
+    source: "Community/Modded",
+    purpose: "Shows or sets seed-related info in modded setups.",
+    notes: "Not expected in standard vanilla command sets.",
+  },
+  {
+    id: "cmd-weather",
+    command: "weather",
+    category: "Community/Modded",
+    source: "Community/Modded",
+    purpose: "Weather readout shorthand used in some setups.",
+    notes: "Vanilla usually surfaces weather in moon listings.",
+  },
+  {
+    id: "cmd-prices",
+    command: "prices",
+    category: "Community/Modded",
+    source: "Community/Modded",
+    purpose: "Store price shorthand for supported mods.",
+    notes: "In vanilla, use store output directly.",
+  },
+  {
+    id: "cmd-scan-moon",
+    command: "scan moon",
+    category: "Community/Modded",
+    source: "Community/Modded",
+    purpose: "Community shorthand for moon detail scans.",
+    notes: "Behavior is not standardized across versions.",
   },
 ];
 
-function slugToHref(id: string) {
-  return `#${id}`;
-}
+const FAQS = [
+  {
+    question: "Which terminal commands should every ship player memorize first?",
+    answer:
+      "Start with moons, route <moon>, confirm, view monitor, switch, store, and quota. Those cover route setup, ship support, and quota pacing.",
+  },
+  {
+    question: "Why are some commands labeled Community/Modded?",
+    answer:
+      "Because command support varies across versions and modpacks. Community/modded labels help you avoid assuming every online command is vanilla-safe.",
+  },
+  {
+    question: "How should we use this page mid-run?",
+    answer:
+      "Filter to Core commands, search by keyword, and copy exact command text to reduce typing mistakes under pressure.",
+  },
+  {
+    question: "How does this help quota consistency?",
+    answer:
+      "Faster routing, cleaner store cycles, and reliable ship-side calls reduce wasted time, which directly improves quota hit rate across a cycle.",
+  },
+];
 
 export default function LethalCompanyTerminalCommandsPage() {
-  const webPageJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: `Lethal Company Terminal Commands Reference | ${SITE.name}`,
-    url: `${SITE.url}/tools/lethal-company/terminal-commands`,
-    description:
-      "Quick, categorized reference of Lethal Company terminal commands with notes and common gotchas.",
-    isPartOf: {
-      "@type": "WebSite",
-      name: SITE.name,
-      url: SITE.url,
-    },
-  };
+  const coreCount = COMMANDS.filter((item) => item.source === "Core").length;
+  const communityCount = COMMANDS.filter(
+    (item) => item.source === "Community/Modded",
+  ).length;
 
-  const vanillaCommands = sections
-    .filter((s) => s.id !== "community-modded")
-    .reduce((sum, section) => sum + section.items.length, 0);
-  const moddedCommands = sections
-    .filter((s) => s.id === "community-modded")
-    .reduce((sum, section) => sum + section.items.length, 0);
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Lethal Company Terminal Commands (Searchable + Copyable)",
+      url: `${SITE.url}/tools/lethal-company/terminal-commands`,
+      description:
+        "Copyable full Lethal Company terminal command list with search, filters, practical notes, and FAQ.",
+      isPartOf: {
+        "@type": "WebSite",
+        name: SITE.name,
+        url: SITE.url,
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Lethal Company Terminal Commands",
+      itemListElement: COMMANDS.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.command,
+        url: `${SITE.url}/tools/lethal-company/terminal-commands#${item.id}`,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQS.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
-      <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6">
+      <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link
             href="/tools/lethal-company/"
-            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+            className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
           >
             ← Back to Lethal Company Tools
           </Link>
           <span className="text-xs font-mono text-zinc-500">
-            {vanillaCommands} core · {moddedCommands} community
+            {coreCount} core · {communityCount} community/modded
           </span>
         </div>
 
         <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            Lethal Company Terminal Commands Reference
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Lethal Company Terminal Commands (Searchable + Copyable)
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            A compact, run-friendly list of common terminal commands, grouped by
-            what you usually do: route moons, use ship systems, open the store,
-            and avoid common gotchas.
+            Full command list with search, category filters, source filters, and
+            one-click copy actions for fast mid-run use.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href="/tools/lethal-company/quota-calculator/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Quota calculator
+            </Link>
+            <Link
+              href="/tools/lethal-company/moons/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Moons guide
+            </Link>
+            <Link
+              href="/tools/lethal-company/bestiary/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Bestiary
+            </Link>
+            <Link
+              href="/tools/lethal-company/items/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Items reference
+            </Link>
+            <Link
+              href="/tools/lethal-company/ship-upgrades/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Ship upgrades
+            </Link>
+          </div>
         </header>
 
-        <section className="mb-10 rounded-2xl border border-zinc-800 bg-zinc-950/30 p-5">
-          <h2 className="text-lg font-semibold">Table of contents</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            Jump to a section. Commands marked as community/modded are separated
-            to avoid mixing them with vanilla basics.
-          </p>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {sections.map((section) => (
-              <a
-                key={section.id}
-                href={slugToHref(section.id)}
-                className="rounded-lg border border-zinc-800 bg-[#0a0a0a] px-3 py-2 text-sm text-zinc-200 hover:bg-zinc-950/60 transition-colors"
+        <TerminalCommandsToolClient commands={COMMANDS} />
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6">
+          <h2 className="text-xl font-semibold">FAQ</h2>
+          <div className="mt-4 space-y-4">
+            {FAQS.map((faq) => (
+              <div
+                key={faq.question}
+                className="rounded-xl border border-zinc-800/80 bg-zinc-950/30 p-4"
               >
-                <span className="font-medium">{section.title}</span>
-                <span className="ml-2 text-zinc-500">
-                  ({section.items.length})
-                </span>
-              </a>
+                <h3 className="text-sm font-semibold text-zinc-100">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{faq.answer}</p>
+              </div>
             ))}
           </div>
         </section>
 
-        <div className="space-y-10">
-          {sections.map((section) => (
-            <section key={section.id} id={section.id} className="scroll-mt-20">
-              <div className="mb-4">
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  {section.title}
-                </h2>
-                {section.description ? (
-                  <p className="mt-2 text-zinc-400">{section.description}</p>
-                ) : null}
-              </div>
-
-              <div className="grid grid-cols-1 gap-3">
-                {section.items.map((item) => (
-                  <div
-                    key={`${section.id}:${item.command}`}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <div>
-                        <div className="text-xs font-mono text-zinc-500">
-                          command
-                        </div>
-                        <div className="mt-1 font-mono text-zinc-100">
-                          {item.command}
-                        </div>
-                      </div>
-                      <a
-                        href={slugToHref(section.id)}
-                        className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-                      >
-                        #{section.id}
-                      </a>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="text-xs font-mono text-zinc-500">
-                        purpose
-                      </div>
-                      <p className="mt-1 text-sm text-zinc-200 leading-relaxed">
-                        {item.purpose}
-                      </p>
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="text-xs font-mono text-zinc-500">notes</div>
-                      <p className="mt-1 text-sm text-zinc-400 leading-relaxed">
-                        {item.notes}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-
-        <section className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-950/20 p-5">
-          <h2 className="text-lg font-semibold">Accuracy notes</h2>
-          <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
-            Lethal Company has changed over time, and some terms you see online
-            are shorthand or modded features. This page keeps uncertain entries
-            in a separate section so the core reference stays safe.
-          </p>
-        </section>
-
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(webPageJsonLd),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </main>
     </div>
   );
 }
-

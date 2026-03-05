@@ -40,6 +40,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/tools/lethal-company/moons`,
+      lastModified: lastModForPath("app/tools/lethal-company/moons/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tools/lethal-company/terminal-commands`,
+      lastModified: lastModForPath(
+        "app/tools/lethal-company/terminal-commands/page.tsx",
+      ),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/tools/lethal-company/items`,
       lastModified: lastModForPath("app/tools/lethal-company/items/page.tsx"),
       changeFrequency: "monthly",
