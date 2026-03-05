@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { buildMetadata } from "../../../_seo/metadata";
 import { SITE } from "../../../_seo/site";
+import FaqJsonLd from "../../../components/FaqJsonLd";
 
 export const metadata = buildMetadata({
   title: `Lethal Company Moons Guide | ${SITE.name}`,
@@ -73,6 +74,7 @@ export default function LethalCompanyMoonsPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
+      <FaqJsonLd faqs={faqs.map(f => ({ question: f.question, answer: f.answer }))} />
       <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
         <div className="mb-8">
           <Link
