@@ -6,7 +6,7 @@ import { SITE } from "../../_seo/site";
 export const metadata = buildMetadata({
   title: `Lethal Company Tools | ${SITE.name}`,
   description:
-    "Lethal Company tool hub: terminal commands, moons guide, quota calculator, and bestiary.",
+    "Lethal Company tool hub: terminal commands, moons, items, ship upgrades, quota calculator, and bestiary.",
   path: "/tools/lethal-company",
 });
 
@@ -31,6 +31,20 @@ const features = [
       "Estimate how much value to sell with preset buffers and runs-per-day pacing.",
     href: "/tools/lethal-company/quota-calculator/",
     tag: "Calculator",
+  },
+  {
+    title: "Items & Scrap Values",
+    description:
+      "Searchable item table with planning-oriented value ranges and quick filters.",
+    href: "/tools/lethal-company/items/",
+    tag: "Data",
+  },
+  {
+    title: "Ship Upgrades",
+    description:
+      "Cost, benefit, and buy-order guidance for ship-side upgrades.",
+    href: "/tools/lethal-company/ship-upgrades/",
+    tag: "Economy",
   },
   {
     title: "Bestiary",
@@ -115,8 +129,8 @@ export default function LethalCompanyToolsPage() {
             Lethal Company Tools
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            A single hub for the core Lethal Company references: route faster,
-            plan quota safely, and reduce wipe risk.
+            A single hub for core Lethal Company references: route faster, plan
+            quota safely, and reduce wipe risk with stronger ship decisions.
           </p>
           <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
             Use this page as your quick launchpad between planning, ship commands,
