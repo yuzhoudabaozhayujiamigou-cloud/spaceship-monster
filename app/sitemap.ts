@@ -101,5 +101,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/blog/best-crops-every-season`,
+      lastModified: lastModForPath("app/blog/best-crops-every-season/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/blog/greenhouse-layout-guide`,
+      lastModified: lastModForPath("app/blog/greenhouse-layout-guide/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/blog/keg-vs-jar-profit-guide`,
+      lastModified: lastModForPath("app/blog/keg-vs-jar-profit-guide/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/presets`,
+      lastModified: lastModForPath("app/presets/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
   ];
 }
