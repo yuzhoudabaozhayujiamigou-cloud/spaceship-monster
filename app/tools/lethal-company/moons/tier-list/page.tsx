@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { buildMetadata } from "../../../../_seo/metadata";
 import { SITE } from "../../../../_seo/site";
+import TierListTableClient, { type TierRow } from "./TierListTableClient";
 
 export const metadata = buildMetadata({
   title: `Lethal Company Moons Tier List (Practical Risk Tiers) | ${SITE.name}`,
@@ -12,26 +13,83 @@ export const metadata = buildMetadata({
 
 const tiers = [
   {
-    name: "S Tier (Consistency Core)",
-    profile: "Reliable clears, manageable variance, strong for quota stabilization.",
-    picks: ["Experimentation", "Assurance"],
+    moon: "Experimentation",
+    tier: "S",
+    risk: "Low",
+    expectedLoot: "Low-Mid (~220-340)",
+    expectedLootValue: 280,
+    recommendedTeamSize: "2-4",
+    teamSizeMin: 2,
+    notes: "Strong for stable early-cycle clears and clean extraction timing.",
+    estimated: true,
   },
   {
-    name: "A Tier (Balanced Upside)",
-    profile: "Higher reward with moderate risk when team comms are solid.",
-    picks: ["Vow", "March"],
+    moon: "Assurance",
+    tier: "S",
+    risk: "Low",
+    expectedLoot: "Low-Mid (~230-360)",
+    expectedLootValue: 295,
+    recommendedTeamSize: "2-4",
+    teamSizeMin: 2,
+    notes: "High consistency for quota stabilization, especially newer teams.",
+    estimated: true,
   },
   {
-    name: "B Tier (Conditional Value)",
-    profile: "Usable when weather/roles align; risky for unstable squads.",
-    picks: ["Rend", "Dine"],
+    moon: "Vow",
+    tier: "A",
+    risk: "Medium",
+    expectedLoot: "Mid (~320-470)",
+    expectedLootValue: 395,
+    recommendedTeamSize: "3-4",
+    teamSizeMin: 3,
+    notes: "Balanced upside when callouts and route discipline are solid.",
+    estimated: true,
   },
   {
-    name: "C Tier (High Volatility)",
-    profile: "Strong upside but punishes mistakes and weak extraction discipline.",
-    picks: ["Titan"],
+    moon: "March",
+    tier: "A",
+    risk: "Medium",
+    expectedLoot: "Mid-High (~360-520)",
+    expectedLootValue: 440,
+    recommendedTeamSize: "3-4",
+    teamSizeMin: 3,
+    notes: "Good catch-up option if team can recover quickly from bad pulls.",
+    estimated: true,
   },
-];
+  {
+    moon: "Rend",
+    tier: "B",
+    risk: "High",
+    expectedLoot: "High (~450-680)",
+    expectedLootValue: 565,
+    recommendedTeamSize: "4",
+    teamSizeMin: 4,
+    notes: "Rewarding but punishes weak map control and late extractions.",
+    estimated: true,
+  },
+  {
+    moon: "Dine",
+    tier: "B",
+    risk: "High",
+    expectedLoot: "High (~470-710)",
+    expectedLootValue: 590,
+    recommendedTeamSize: "4",
+    teamSizeMin: 4,
+    notes: "Use when ahead or when intentionally taking controlled risk.",
+    estimated: true,
+  },
+  {
+    moon: "Titan",
+    tier: "C",
+    risk: "Very High",
+    expectedLoot: "Very High (~600-900)",
+    expectedLootValue: 750,
+    recommendedTeamSize: "4 (coordinated)",
+    teamSizeMin: 4,
+    notes: "Large upside but high wipe probability without tight team roles.",
+    estimated: true,
+  },
+] satisfies TierRow[];
 
 const faqs = [
   {
@@ -48,6 +106,11 @@ const faqs = [
     question: "How should teams use this during a quota cycle?",
     answer:
       "If behind, take one calibrated risk tier up. If ahead, drop one tier and bank consistency to protect quota margin.",
+  },
+  {
+    question: "Are expected loot values exact?",
+    answer:
+      "No. They are estimate ranges for planning context, marked unverified until validated against your exact version and settings.",
   },
 ];
 
@@ -71,7 +134,7 @@ export default function LethalCompanyMoonsTierListPage() {
     itemListElement: tiers.map((tier, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      name: tier.name,
+      name: `${tier.moon} (${tier.tier})`,
       url: `${SITE.url}/tools/lethal-company/moons/tier-list`,
     })),
   };
@@ -102,32 +165,12 @@ export default function LethalCompanyMoonsTierListPage() {
             Moons Tier List (Risk + Consistency)
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            Quick tier framing for route calls. This page prioritizes reliable
-            quota execution over single-run highlight outcomes.
+            Sortable planning table for quick route calls. Values are practical
+            estimates and should be treated as unverified baselines.
           </p>
         </header>
 
-        <section className="space-y-3">
-          {tiers.map((tier) => (
-            <article
-              key={tier.name}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5"
-            >
-              <h2 className="text-lg font-semibold">{tier.name}</h2>
-              <p className="mt-2 text-sm text-zinc-400">{tier.profile}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {tier.picks.map((pick) => (
-                  <span
-                    key={pick}
-                    className="inline-flex rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-mono text-zinc-200"
-                  >
-                    {pick}
-                  </span>
-                ))}
-              </div>
-            </article>
-          ))}
-        </section>
+        <TierListTableClient rows={tiers} />
 
         <section className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6">
           <h2 className="text-xl font-semibold">Related tools</h2>
