@@ -32,6 +32,17 @@ export default function ToolsPage() {
       description: "Categorized terminal commands reference with notes and TOC.",
       href: "/tools/lethal-company/terminal-commands/",
     },
+    {
+      name: "Palworld Tools",
+      description:
+        "Breeding calculator MVP live, plus planned paldeck explorer, IV checker, and path planner.",
+      href: "/tools/palworld/",
+    },
+    {
+      name: "Palworld Breeding Calculator (MVP)",
+      description: "Searchable/filterable breeding combos with static placeholder data.",
+      href: "/tools/palworld/breeding-calculator/",
+    },
   ];
 
   const itemListStructuredData = {

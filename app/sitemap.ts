@@ -40,6 +40,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${baseUrl}/tools/lethal-company/items`,
+      lastModified: lastModForPath("app/tools/lethal-company/items/page.tsx"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tools/lethal-company/ship-upgrades`,
+      lastModified: lastModForPath(
+        "app/tools/lethal-company/ship-upgrades/page.tsx",
+      ),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/tools/palworld`,
+      lastModified: lastModForPath("app/tools/palworld/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/tools/palworld/breeding-calculator`,
+      lastModified: lastModForPath(
+        "app/tools/palworld/breeding-calculator/page.tsx",
+      ),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: lastModForPath("app/blog/page.tsx"),
       changeFrequency: "weekly",
