@@ -31,37 +31,39 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <main className="max-w-2xl w-full text-center">
-        <h1 className="text-5xl font-bold mb-4 tracking-tight">
-          {SITE.name}
-        </h1>
-        <p className="text-xl text-gray-600 mb-12">
-          Building useful tools and sharing insights.
-        </p>
+    <div className="flex min-h-screen items-center justify-center p-6">
+      <main className="w-full max-w-2xl text-center">
+        <h1 className="mb-4 text-5xl font-bold tracking-tight">{SITE.name}</h1>
+        <p className="mb-12 text-xl text-gray-600">Building useful tools and sharing insights.</p>
 
-        <nav className="flex flex-col sm:flex-row gap-4 justify-center">
+        <nav className="flex flex-col justify-center gap-4 sm:flex-row sm:flex-wrap">
           <Link
             href="/tools/"
-            className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+            className="rounded-lg bg-gray-900 px-6 py-3 text-white transition-colors hover:bg-gray-800"
           >
             Tools
           </Link>
           <Link
+            href="/tools/satisfactory/"
+            className="rounded-lg border border-sky-500/30 px-6 py-3 text-sky-300 transition-colors hover:bg-sky-500/10"
+          >
+            Satisfactory Tools
+          </Link>
+          <Link
             href="/tools/lethal-company/"
-            className="px-6 py-3 border border-emerald-500/30 text-emerald-300 rounded-lg hover:bg-emerald-500/10 transition-colors"
+            className="rounded-lg border border-emerald-500/30 px-6 py-3 text-emerald-300 transition-colors hover:bg-emerald-500/10"
           >
             Lethal Company
           </Link>
           <Link
             href="https://stardewprofit.com"
-            className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-gray-300 px-6 py-3 transition-colors hover:bg-gray-50"
           >
             Stardewprofit
           </Link>
           <Link
             href="/blog/"
-            className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="rounded-lg border border-gray-300 px-6 py-3 transition-colors hover:bg-gray-50"
           >
             Blog
           </Link>

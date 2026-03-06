@@ -18,6 +18,18 @@ export default function ToolsPage() {
       href: "/simpleclaw/",
     },
     {
+      name: "Satisfactory Tools",
+      description:
+        "Production, power, logistics, building planner, and resource map for scalable factories.",
+      href: "/tools/satisfactory/",
+    },
+    {
+      name: "Satisfactory Production Calculator",
+      description:
+        "Calculate production chains, required raw resources, and machine counts per minute.",
+      href: "/tools/satisfactory/production-calculator/",
+    },
+    {
       name: "Lethal Company",
       description: "Quota calculator, moons guide, terminal commands reference, and more.",
       href: "/tools/lethal-company/",
@@ -57,35 +69,28 @@ export default function ToolsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 p-6">
-      <main className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-[#0a0a0a] p-6 text-zinc-100">
+      <main className="mx-auto max-w-3xl">
         <div className="mb-8">
-          <Link
-            href="/"
-            className="text-zinc-400 hover:text-zinc-100 transition-colors"
-          >
+          <Link href="/" className="text-zinc-400 transition-colors hover:text-zinc-100">
             ← Back to home
           </Link>
         </div>
 
-        <h1 className="text-4xl font-bold mb-4">Tools</h1>
-        <p className="text-zinc-400 mb-8">
-          A collection of useful tools and utilities.
-        </p>
+        <h1 className="mb-4 text-4xl font-bold">Tools</h1>
+        <p className="mb-8 text-zinc-400">A collection of useful tools and utilities.</p>
 
         <div className="space-y-4">
           {tools.map((tool) => (
             <Link
               key={tool.href}
               href={tool.href}
-              className="block rounded-xl border border-zinc-800 bg-zinc-950/40 p-5 hover:bg-zinc-950/60 transition-colors"
+              className="block rounded-xl border border-zinc-800 bg-zinc-950/40 p-5 transition-colors hover:bg-zinc-950/60"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-semibold text-lg">{tool.name}</h2>
-                  <p className="text-sm text-zinc-400 mt-1">
-                    {tool.description}
-                  </p>
+                  <h2 className="text-lg font-semibold">{tool.name}</h2>
+                  <p className="mt-1 text-sm text-zinc-400">{tool.description}</p>
                 </div>
                 <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-300">
                   NEW
@@ -95,8 +100,8 @@ export default function ToolsPage() {
           ))}
 
           <div className="rounded-xl border border-zinc-800 bg-zinc-950/20 p-5">
-            <h2 className="font-semibold text-lg">More coming soon...</h2>
-            <p className="text-zinc-400 mt-1">
+            <h2 className="text-lg font-semibold">More coming soon...</h2>
+            <p className="mt-1 text-zinc-400">
               We are working on building helpful tools for developers and creators.
             </p>
           </div>

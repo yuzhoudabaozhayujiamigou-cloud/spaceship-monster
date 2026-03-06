@@ -20,6 +20,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/tools/satisfactory`,
+      lastModified: lastModForPath("app/tools/satisfactory/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/tools/satisfactory/production-calculator`,
+      lastModified: lastModForPath(
+        "app/tools/satisfactory/production-calculator/page.tsx",
+      ),
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${baseUrl}/tools/satisfactory/power-calculator`,
+      lastModified: lastModForPath("app/tools/satisfactory/power-calculator/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${baseUrl}/tools/satisfactory/belt-pipe-calculator`,
+      lastModified: lastModForPath(
+        "app/tools/satisfactory/belt-pipe-calculator/page.tsx",
+      ),
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${baseUrl}/tools/satisfactory/building-planner`,
+      lastModified: lastModForPath("app/tools/satisfactory/building-planner/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
+      url: `${baseUrl}/tools/satisfactory/resource-map`,
+      lastModified: lastModForPath("app/tools/satisfactory/resource-map/page.tsx"),
+      changeFrequency: "weekly",
+      priority: 0.65,
+    },
+    {
       url: `${baseUrl}/tools/lethal-company`,
       lastModified: lastModForPath("app/tools/lethal-company/page.tsx"),
       changeFrequency: "weekly",
