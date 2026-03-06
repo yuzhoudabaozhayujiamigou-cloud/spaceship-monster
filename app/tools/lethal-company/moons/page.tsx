@@ -299,9 +299,48 @@ export default function LethalCompanyMoonsPage() {
               <ul className="mt-3 space-y-2 text-sm text-zinc-300 list-disc pl-5">
                 <li>Pick Tier 3 only when you can afford a wipe or two.</li>
                 <li>Start early and run strict roles; don’t drift into chaos.</li>
-                <li>Plan for extraction, not just entry: time loss is the killer.</li>
+                <li>
+                  Plan for extraction, not just entry: time loss is the killer. Use the{" "}
+                  <Link
+                    href="/tools/lethal-company/items/"
+                    className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-200"
+                  >
+                    items guide
+                  </Link>
+                  {" "}to skip low-efficiency heavy scrap.
+                </li>
               </ul>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5">
+          <h2 className="text-xl font-semibold">Related guides</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/tools/lethal-company/items/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Items guide
+            </Link>
+            <Link
+              href="/tools/lethal-company/quota-calculator/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Quota calculator
+            </Link>
+            <Link
+              href="/tools/lethal-company/terminal-commands/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Terminal commands
+            </Link>
+            <Link
+              href="/tools/lethal-company/bestiary/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Bestiary
+            </Link>
           </div>
         </section>
 

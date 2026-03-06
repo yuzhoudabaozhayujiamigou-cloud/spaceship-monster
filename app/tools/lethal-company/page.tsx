@@ -6,7 +6,7 @@ import { SITE } from "../../_seo/site";
 export const metadata = buildMetadata({
   title: `Lethal Company Tools | ${SITE.name}`,
   description:
-    "Lethal Company tool hub: terminal commands, moons, items, ship upgrades, quota calculator, and bestiary.",
+    "Lethal Company tool hub: terminal commands, moons guide, quota calculator, items guide, and bestiary.",
   path: "/tools/lethal-company",
 });
 
@@ -33,23 +33,16 @@ const features = [
     tag: "Calculator",
   },
   {
-    title: "Items & Scrap Values",
+    title: "Items Guide",
     description:
-      "Searchable item table with planning-oriented value ranges and quick filters.",
+      "Complete scrap value list with weight, rarity, spawn notes, and danger signals.",
     href: "/tools/lethal-company/items/",
     tag: "Data",
   },
   {
-    title: "Ship Upgrades",
-    description:
-      "Cost, benefit, and buy-order guidance for ship-side upgrades.",
-    href: "/tools/lethal-company/ship-upgrades/",
-    tag: "Economy",
-  },
-  {
     title: "Bestiary",
     description:
-      "Monster behavior patterns, threat levels, and survival tactics you can use in live runs.",
+      "Monster behavior patterns, threat levels, and survival tactics for live runs.",
     href: "/tools/lethal-company/bestiary/",
     tag: "Survival",
   },
@@ -59,22 +52,22 @@ const faqs = [
   {
     question: "Which page should I start with as a new crew?",
     answer:
-      "Start with the Quota Calculator for a stable target, then use the Moons Guide and Terminal Commands to reduce run variance.",
+      "Start with the Quota Calculator for a stable target, then use the Moons Guide and Items Guide to pick safer, higher-efficiency runs.",
+  },
+  {
+    question: "How do these five pages work together?",
+    answer:
+      "Use commands for execution speed, moons for route risk, items for loot quality, bestiary for threat adaptation, and quota planning for sell timing.",
   },
   {
     question: "Are these pages vanilla-focused or modded?",
     answer:
-      "The guidance is vanilla-first, but most planning concepts still apply to modded runs when you adjust values to your server setup.",
-  },
-  {
-    question: "How do these tools work together during a run cycle?",
-    answer:
-      "Set your quota target, choose safer moon profiles, execute ship-side commands quickly, and review monster risks for cleaner exits.",
+      "The cluster is vanilla-first, but most planning principles still apply to modded runs when you adjust values and command support.",
   },
   {
     question: "Can I use these references mid-run?",
     answer:
-      "Yes. Each page is built as a compact, scan-friendly reference so you can grab what you need without digging.",
+      "Yes. Every page is built as a compact reference so you can scan quickly without slowing your team down.",
   },
 ];
 
@@ -129,12 +122,11 @@ export default function LethalCompanyToolsPage() {
             Lethal Company Tools
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
-            A single hub for core Lethal Company references: route faster, plan
-            quota safely, and reduce wipe risk with stronger ship decisions.
+            A focused 5-page cluster for Lethal Company: plan quota safely, route moons faster,
+            pick better loot, and reduce wipe risk under pressure.
           </p>
           <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
-            Use this page as your quick launchpad between planning, ship commands,
-            and survival references.
+            Use this hub as your jump point between planning, command execution, and survival.
           </p>
         </header>
 

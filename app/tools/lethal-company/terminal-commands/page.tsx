@@ -417,7 +417,8 @@ export default function LethalCompanyTerminalCommandsPage() {
           </h1>
           <p className="mt-3 text-zinc-400 leading-relaxed">
             Full command list with search, category filters, source filters, and
-            one-click copy actions for fast mid-run use.
+            one-click copy actions for fast mid-run use. Pair it with the items guide to prioritize
+            high-value pickups before each route.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
@@ -442,7 +443,7 @@ export default function LethalCompanyTerminalCommandsPage() {
               href="/tools/lethal-company/items/"
               className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
             >
-              Items reference
+              Items guide
             </Link>
             <Link
               href="/tools/lethal-company/ship-upgrades/"

@@ -2,51 +2,89 @@
 
 import { useMemo, useState } from "react";
 
+export type ItemRarity = "Common" | "Uncommon" | "Rare" | "Very Rare";
+export type DangerLevel = "Low" | "Medium" | "High";
+
 export type ScrapItem = {
   id: string;
   name: string;
-  category: string;
   valueMin: number;
   valueMax: number;
-  valuePlan: number;
+  weightLb: number;
+  rarity: ItemRarity;
+  spawn: string;
+  danger: DangerLevel;
   note: string;
 };
 
-type ValueBand = "All" | "Low" | "Mid" | "High";
+type RarityFilter = "All" | ItemRarity;
+type DangerFilter = "All" | DangerLevel;
 
-function normalize(s: string) {
-  return s.toLowerCase().trim();
+function normalize(text: string) {
+  return text.toLowerCase().trim();
 }
 
-function inBand(item: ScrapItem, band: ValueBand) {
-  if (band === "All") return true;
-  if (band === "Low") return item.valuePlan < 40;
-  if (band === "Mid") return item.valuePlan >= 40 && item.valuePlan < 80;
-  return item.valuePlan >= 80;
+function rarityStyles(rarity: ItemRarity) {
+  if (rarity === "Very Rare") {
+    return "border-red-500/40 bg-red-500/10 text-red-200";
+  }
+
+  if (rarity === "Rare") {
+    return "border-orange-500/40 bg-orange-500/10 text-orange-200";
+  }
+
+  if (rarity === "Uncommon") {
+    return "border-amber-500/40 bg-amber-500/10 text-amber-200";
+  }
+
+  return "border-emerald-500/40 bg-emerald-500/10 text-emerald-200";
+}
+
+function dangerStyles(danger: DangerLevel) {
+  if (danger === "High") {
+    return "border-red-500/40 bg-red-500/10 text-red-200";
+  }
+
+  if (danger === "Medium") {
+    return "border-yellow-500/40 bg-yellow-500/10 text-yellow-200";
+  }
+
+  return "border-zinc-700 bg-zinc-900 text-zinc-300";
+}
+
+function formatWeight(weightLb: number) {
+  return `${weightLb.toFixed(0)} lb`;
 }
 
 export default function ItemsReferenceClient({ items }: { items: ScrapItem[] }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("All");
-  const [band, setBand] = useState<ValueBand>("All");
-
-  const categories = useMemo(
-    () => ["All", ...new Set(items.map((item) => item.category))],
-    [items],
-  );
+  const [rarity, setRarity] = useState<RarityFilter>("All");
+  const [danger, setDanger] = useState<DangerFilter>("All");
 
   const filtered = useMemo(() => {
     const q = normalize(query);
+
     return items.filter((item) => {
-      if (category !== "All" && item.category !== category) return false;
-      if (!inBand(item, band)) return false;
+      if (rarity !== "All" && item.rarity !== rarity) return false;
+      if (danger !== "All" && item.danger !== danger) return false;
       if (!q) return true;
-      const text = normalize(
-        `${item.name} ${item.category} ${item.note} ${item.valueMin} ${item.valueMax} ${item.valuePlan}`,
+
+      const searchable = normalize(
+        `${item.name} ${item.valueMin} ${item.valueMax} ${item.weightLb} ${item.rarity} ${item.spawn} ${item.note} ${item.danger}`,
       );
-      return text.includes(q);
+
+      return searchable.includes(q);
     });
-  }, [items, query, category, band]);
+  }, [danger, items, query, rarity]);
+
+  const rarityFilters: RarityFilter[] = [
+    "All",
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Very Rare",
+  ];
+  const dangerFilters: DangerFilter[] = ["All", "Low", "Medium", "High"];
 
   return (
     <>
@@ -56,33 +94,27 @@ export default function ItemsReferenceClient({ items }: { items: ScrapItem[] }) 
             <div className="text-xs font-mono text-zinc-500">search</div>
             <input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search item, note, or value..."
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search item, rarity, location, or notes..."
               className="mt-2 w-full rounded-xl border border-zinc-800 bg-[#0a0a0a] px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-zinc-600"
             />
           </div>
 
           <div>
-            <div className="text-xs font-mono text-zinc-500">value band</div>
+            <div className="text-xs font-mono text-zinc-500">danger</div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {(["All", "Low", "Mid", "High"] as ValueBand[]).map((valueBand) => (
+              {dangerFilters.map((filter) => (
                 <button
-                  key={valueBand}
+                  key={filter}
                   type="button"
-                  onClick={() => setBand(valueBand)}
+                  onClick={() => setDanger(filter)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    band === valueBand
-                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                    danger === filter
+                      ? "border-zinc-500 bg-zinc-900 text-zinc-100"
                       : "border-zinc-800 bg-[#0a0a0a] text-zinc-300 hover:bg-zinc-950/60"
                   }`}
                 >
-                  {valueBand === "Low"
-                    ? "Low (<40)"
-                    : valueBand === "Mid"
-                      ? "Mid (40-79)"
-                      : valueBand === "High"
-                        ? "High (80+)"
-                        : "All"}
+                  {filter}
                 </button>
               ))}
             </div>
@@ -90,20 +122,20 @@ export default function ItemsReferenceClient({ items }: { items: ScrapItem[] }) 
         </div>
 
         <div className="mt-4">
-          <div className="text-xs font-mono text-zinc-500">category</div>
+          <div className="text-xs font-mono text-zinc-500">rarity</div>
           <div className="mt-2 flex flex-wrap gap-2">
-            {categories.map((cat) => (
+            {rarityFilters.map((filter) => (
               <button
-                key={cat}
+                key={filter}
                 type="button"
-                onClick={() => setCategory(cat)}
+                onClick={() => setRarity(filter)}
                 className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                  category === cat
-                    ? "border-zinc-600 bg-zinc-900 text-zinc-100"
+                  rarity === filter
+                    ? "border-zinc-500 bg-zinc-900 text-zinc-100"
                     : "border-zinc-800 bg-[#0a0a0a] text-zinc-300 hover:bg-zinc-950/60"
                 }`}
               >
-                {cat}
+                {filter}
               </button>
             ))}
           </div>
@@ -112,13 +144,13 @@ export default function ItemsReferenceClient({ items }: { items: ScrapItem[] }) 
 
       <section className="mt-6">
         <div className="mb-3 flex items-end justify-between gap-3">
-          <h2 className="text-xl font-semibold">Scrap Value Table</h2>
+          <h2 className="text-xl font-semibold">All Scrap Items</h2>
           <span className="text-xs text-zinc-500">{filtered.length} results</span>
         </div>
 
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5 text-sm text-zinc-400">
-            No matches with current filters. Clear search or switch category/value band.
+            No matches with current filters. Try a broader search or reset filters.
           </div>
         ) : (
           <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950/40">
@@ -126,22 +158,47 @@ export default function ItemsReferenceClient({ items }: { items: ScrapItem[] }) 
               <thead className="border-b border-zinc-800 bg-zinc-950/70">
                 <tr className="text-left text-xs font-mono uppercase tracking-wider text-zinc-400">
                   <th className="px-4 py-3">Item</th>
-                  <th className="px-4 py-3">Category</th>
-                  <th className="px-4 py-3">Range</th>
-                  <th className="px-4 py-3">Plan Value</th>
+                  <th className="px-4 py-3">Value</th>
+                  <th className="px-4 py-3">Weight</th>
+                  <th className="px-4 py-3">Rarity</th>
+                  <th className="px-4 py-3">Spawn</th>
                   <th className="px-4 py-3">Notes</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((item) => (
-                  <tr key={item.id} id={item.id} className="border-b border-zinc-800/80 last:border-b-0">
+                  <tr
+                    key={item.id}
+                    id={item.id}
+                    className="border-b border-zinc-800/80 last:border-b-0"
+                  >
                     <td className="px-4 py-3 font-medium text-zinc-100">{item.name}</td>
-                    <td className="px-4 py-3 text-zinc-300">{item.category}</td>
                     <td className="px-4 py-3 font-mono text-zinc-300">
                       {item.valueMin} - {item.valueMax}
                     </td>
-                    <td className="px-4 py-3 font-mono text-emerald-300">{item.valuePlan}</td>
-                    <td className="px-4 py-3 text-zinc-400">{item.note}</td>
+                    <td className="px-4 py-3 font-mono text-zinc-300">
+                      {formatWeight(item.weightLb)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-xs ${rarityStyles(
+                          item.rarity,
+                        )}`}
+                      >
+                        {item.rarity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-zinc-300">{item.spawn}</td>
+                    <td className="px-4 py-3 text-zinc-400">
+                      <span
+                        className={`mr-2 inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${dangerStyles(
+                          item.danger,
+                        )}`}
+                      >
+                        {item.danger}
+                      </span>
+                      {item.note}
+                    </td>
                   </tr>
                 ))}
               </tbody>

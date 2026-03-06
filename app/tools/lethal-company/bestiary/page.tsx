@@ -360,7 +360,14 @@ export default function LethalCompanyBestiaryPage() {
             >
               terminal commands reference
             </Link>
-            . Want a quota plan that doesn’t collapse after one bad run? Use the {" "}
+            {" "}and use the {" "}
+            <Link
+              href="/tools/lethal-company/items/"
+              className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-200"
+            >
+              items guide
+            </Link>
+            {" "}to avoid risky low-value carries. Want a quota plan that doesn’t collapse after one bad run? Use the {" "}
             <Link
               href="/tools/lethal-company/quota-calculator/"
               className="text-zinc-100 underline decoration-zinc-600 hover:decoration-zinc-200"

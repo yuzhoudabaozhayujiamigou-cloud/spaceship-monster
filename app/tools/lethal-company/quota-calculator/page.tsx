@@ -116,6 +116,12 @@ export default function LethalCompanyQuotaCalculatorPage() {
             >
               Bestiary
             </Link>
+            <Link
+              href="/tools/lethal-company/items/"
+              className="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 hover:border-zinc-700"
+            >
+              Items guide
+            </Link>
           </div>
         </header>
 
@@ -224,7 +230,7 @@ export default function LethalCompanyQuotaCalculatorPage() {
             Use these pages together for better route planning, moon selection, and encounter
             survival decisions.
           </p>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href="/tools/lethal-company/terminal-commands/"
               className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4 hover:border-zinc-700"
@@ -250,6 +256,15 @@ export default function LethalCompanyQuotaCalculatorPage() {
               <div className="text-sm font-semibold">Bestiary</div>
               <p className="mt-2 text-sm text-zinc-400">
                 Monster behaviors and survival tactics for safer high-value runs.
+              </p>
+            </Link>
+            <Link
+              href="/tools/lethal-company/items/"
+              className="rounded-xl border border-zinc-800 bg-zinc-950/50 p-4 hover:border-zinc-700"
+            >
+              <div className="text-sm font-semibold">Items Guide</div>
+              <p className="mt-2 text-sm text-zinc-400">
+                Full scrap value list with weight and rarity filters.
               </p>
             </Link>
           </div>
