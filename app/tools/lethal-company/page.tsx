@@ -4,9 +4,9 @@ import { buildMetadata } from "../../_seo/metadata";
 import { SITE } from "../../_seo/site";
 
 export const metadata = buildMetadata({
-  title: `Lethal Company Tools | ${SITE.name}`,
+  title: `Lethal Company Hub | ${SITE.name}`,
   description:
-    "Lethal Company tool hub: terminal commands, moons guide, quota calculator, items guide, and bestiary.",
+    "Lethal Company hub page with Terminal Commands, Moons, Quota Calculator, and Bestiary tools.",
   path: "/tools/lethal-company",
 });
 
@@ -14,35 +14,28 @@ const features = [
   {
     title: "Terminal Commands",
     description:
-      "Categorized command reference with practical notes, shortcuts, and common gotchas.",
+      "Full command reference with categories, syntax notes, and shortcuts for faster runs.",
     href: "/tools/lethal-company/terminal-commands/",
     tag: "Reference",
   },
   {
-    title: "Moons Guide",
+    title: "Moons",
     description:
-      "Version-agnostic framework for moon tiers, risk factors, and quick-pick planning.",
+      "Moon planning view to compare risk, route choice, and loot pace before each drop.",
     href: "/tools/lethal-company/moons/",
     tag: "Planning",
   },
   {
     title: "Quota Calculator",
     description:
-      "Estimate how much value to sell with preset buffers and runs-per-day pacing.",
+      "Plan daily sell targets, safety buffer, and team pace to hit quota with less panic.",
     href: "/tools/lethal-company/quota-calculator/",
     tag: "Calculator",
   },
   {
-    title: "Items Guide",
-    description:
-      "Complete scrap value list with weight, rarity, spawn notes, and danger signals.",
-    href: "/tools/lethal-company/items/",
-    tag: "Data",
-  },
-  {
     title: "Bestiary",
     description:
-      "Monster behavior patterns, threat levels, and survival tactics for live runs.",
+      "Enemy behavior breakdown with threat levels and practical counterplay.",
     href: "/tools/lethal-company/bestiary/",
     tag: "Survival",
   },
@@ -50,24 +43,34 @@ const features = [
 
 const faqs = [
   {
-    question: "Which page should I start with as a new crew?",
+    question: "What is the fastest way to use this hub before a run?",
     answer:
-      "Start with the Quota Calculator for a stable target, then use the Moons Guide and Items Guide to pick safer, higher-efficiency runs.",
+      "Open Quota Calculator first for your target, then pick a moon. Keep Terminal Commands and Bestiary ready for in-run execution and threat response.",
   },
   {
-    question: "How do these five pages work together?",
+    question: "Which page should beginners start with?",
     answer:
-      "Use commands for execution speed, moons for route risk, items for loot quality, bestiary for threat adaptation, and quota planning for sell timing.",
+      "Most crews start with Quota Calculator and Moons first, then use Terminal Commands and Bestiary as quick references during runs.",
   },
   {
-    question: "Are these pages vanilla-focused or modded?",
+    question: "Does this hub work for solo and full-team play?",
     answer:
-      "The cluster is vanilla-first, but most planning principles still apply to modded runs when you adjust values and command support.",
+      "Yes. Solo players can use it for pacing and risk control, while teams can align route and sell timing with shared targets.",
   },
   {
-    question: "Can I use these references mid-run?",
+    question: "How often should I revisit the Quota Calculator?",
     answer:
-      "Yes. Every page is built as a compact reference so you can scan quickly without slowing your team down.",
+      "Recalculate whenever quota, run count, or expected haul changes so your sell timing stays aligned with current conditions.",
+  },
+  {
+    question: "Can I keep these pages open mid-run without losing speed?",
+    answer:
+      "Yes. The pages are compact references designed for quick scanning between decisions.",
+  },
+  {
+    question: "Are these references vanilla-only?",
+    answer:
+      "The defaults are vanilla-first, but the planning framework still applies to many modded runs when values or behavior differ.",
   },
 ];
 
@@ -111,22 +114,19 @@ export default function LethalCompanyToolsPage() {
         <div className="mb-8">
           <Link
             href="/tools/"
-            className="text-sm text-zinc-400 hover:text-zinc-100 transition-colors"
+            className="text-sm text-zinc-400 transition-colors hover:text-zinc-100"
           >
             ← Back to Tools
           </Link>
         </div>
 
         <header className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-            Lethal Company Tools
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+            Lethal Company Hub
           </h1>
-          <p className="mt-3 text-zinc-400 leading-relaxed">
-            A focused 5-page cluster for Lethal Company: plan quota safely, route moons faster,
-            pick better loot, and reduce wipe risk under pressure.
-          </p>
-          <p className="mt-2 text-sm text-zinc-500 leading-relaxed">
-            Use this hub as your jump point between planning, command execution, and survival.
+          <p className="mt-3 leading-relaxed text-zinc-400">
+            One jump page for your core workflow: set quota, pick moons, execute commands,
+            and respond to monster threats quickly.
           </p>
         </header>
 
@@ -139,9 +139,7 @@ export default function LethalCompanyToolsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold">{feature.title}</h2>
-                  <p className="mt-2 text-sm text-zinc-400">
-                    {feature.description}
-                  </p>
+                  <p className="mt-2 text-sm text-zinc-400">{feature.description}</p>
                 </div>
                 <span className="shrink-0 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-xs font-mono text-zinc-300">
                   {feature.tag}
@@ -164,7 +162,10 @@ export default function LethalCompanyToolsPage() {
           <h2 className="text-xl font-semibold">FAQ</h2>
           <div className="mt-4 space-y-4">
             {faqs.map((faq) => (
-              <div key={faq.question} className="rounded-xl border border-zinc-800/80 bg-zinc-950/30 p-4">
+              <div
+                key={faq.question}
+                className="rounded-xl border border-zinc-800/80 bg-zinc-950/30 p-4"
+              >
                 <h3 className="text-sm font-semibold text-zinc-100">{faq.question}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-400">{faq.answer}</p>
               </div>
