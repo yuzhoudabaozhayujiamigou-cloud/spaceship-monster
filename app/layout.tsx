@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { SITE } from "./_seo/site";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen bg-white text-gray-900">
+        <GoogleAnalytics />
         {children}
       </body>
     </html>

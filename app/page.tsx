@@ -34,7 +34,7 @@ export default function HomePage() {
     <div className="flex min-h-screen items-center justify-center p-6">
       <main className="w-full max-w-2xl text-center">
         <h1 className="mb-4 text-5xl font-bold tracking-tight">{SITE.name}</h1>
-        <p className="mb-12 text-xl text-gray-600">Building useful tools and sharing insights.</p>
+        <p className="mb-12 text-xl text-gray-600">Free calculators and guides for Lethal Company, Palworld, and Stardew Valley.</p>
 
         <nav className="flex flex-col justify-center gap-4 sm:flex-row sm:flex-wrap">
           <Link

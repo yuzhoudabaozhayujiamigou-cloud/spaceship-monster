@@ -3,5 +3,5 @@ export const SITE = {
   url: "https://spaceship.monster",
   twitter: "@spaceshipmonster",
   defaultDescription:
-    "Building useful tools and sharing insights about development, design, and technology.",
+    "Free calculators, guides, and tools for Lethal Company, Palworld, and Stardew Valley. Quota calculator, breeding calculator, profit guides, and more.",
 } as const;
