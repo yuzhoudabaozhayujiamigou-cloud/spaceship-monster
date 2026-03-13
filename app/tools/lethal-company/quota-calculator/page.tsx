@@ -102,7 +102,8 @@ export default function QuotaCalculatorPage() {
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-zinc-300">
             <p>
               Vanilla starts at <span className="font-semibold text-zinc-100">Quota 1 = 130</span>. For later quotas,
-              the increase scales with quota count and an RNG multiplier each cycle.
+              the increase scales with quota count and an RNG multiplier each cycle. If you want a dedicated write-up,
+              see <Link href="/guides/profit-quota-formula" className="underline decoration-zinc-600 underline-offset-4 hover:decoration-zinc-300">quota formula explained</Link>.
             </p>
             <pre className="overflow-x-auto rounded-xl border border-zinc-800 bg-[#0a0a0a] p-4 text-xs text-zinc-300">
 {`nextQuota = floor(

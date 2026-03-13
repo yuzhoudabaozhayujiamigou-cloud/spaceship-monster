@@ -144,6 +144,13 @@ export default function EarlySellQuotaCalculatorPage() {
               <p className="mt-2 text-sm text-zinc-400">Pick lower-variance routes when quota pressure is high.</p>
             </Link>
             <Link
+              href="/tools/lethal-company/terminal-commands/shortcuts-tips"
+              className="rounded-xl border border-zinc-800 bg-[#0a0a0a] p-4 transition-colors hover:bg-zinc-950"
+            >
+              <h3 className="font-semibold text-zinc-100">Terminal Shortcuts</h3>
+              <p className="mt-2 text-sm text-zinc-400">Fast command habits that reduce quota-day chaos.</p>
+            </Link>
+            <Link
               href="/guides/profit-quota-formula"
               className="rounded-xl border border-zinc-800 bg-[#0a0a0a] p-4 transition-colors hover:bg-zinc-950"
             >
