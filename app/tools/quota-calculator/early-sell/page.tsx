@@ -4,9 +4,9 @@ import { buildMetadata } from "../../../_seo/metadata";
 import FaqJsonLd from "../../../components/FaqJsonLd";
 
 export const metadata = buildMetadata({
-  title: "Lethal Company Early Sell Quota Calculator (How Much to Sell Today)",
+  title: "Lethal Company Early Sell Quota Calculator: How Much to Sell Today",
   description:
-    "Plan an early sell in Lethal Company: estimate how much scrap value you need to sell today to safely meet quota while keeping enough credits for purchases.",
+    "How much should you sell today in Lethal Company? Use this early sell quota calculator to estimate the minimum scrap value to sell now, hit quota safely, and keep credits for planned purchases.",
   path: "/tools/quota-calculator/early-sell",
 });
 
@@ -46,7 +46,7 @@ export default function EarlySellQuotaCalculatorPage() {
         <header className="mb-8">
           <p className="text-xs font-mono uppercase tracking-wide text-zinc-500">Lethal Company → Quota</p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Early Sell Quota Calculator (Lethal Company)
+            Early Sell Quota Calculator: How Much to Sell Today
           </h1>
           <p className="mt-3 leading-relaxed text-zinc-400">
             Selling early is a common way to de-risk quota, but it’s easy to sell too much (and starve your
