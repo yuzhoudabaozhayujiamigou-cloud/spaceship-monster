@@ -170,7 +170,7 @@ common planning range: 0.5 to 1.5`}
 
         <section className="mb-10 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6">
           <h2 className="text-2xl font-semibold tracking-tight">Related Tools</h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
             <Link
               href="/tools/lethal-company/terminal-commands/"
               className="rounded-xl border border-zinc-800 bg-[#0a0a0a] p-4 transition-colors hover:bg-zinc-950"
@@ -191,6 +191,13 @@ common planning range: 0.5 to 1.5`}
             >
               <h3 className="font-semibold text-zinc-100">Bestiary</h3>
               <p className="mt-2 text-sm text-zinc-400">Monster behavior and survival rules to reduce wipe risk.</p>
+            </Link>
+            <Link
+              href="/tools/quota-calculator/early-sell"
+              className="rounded-xl border border-emerald-600/30 bg-emerald-500/10 p-4 transition-colors hover:bg-emerald-500/15"
+            >
+              <h3 className="font-semibold text-zinc-100">Early Sell Planner</h3>
+              <p className="mt-2 text-sm text-zinc-300">Landing page for early-sell scenarios &amp; safe minimum sales.</p>
             </Link>
           </div>
         </section>

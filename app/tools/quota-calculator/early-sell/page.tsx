@@ -44,6 +44,7 @@ export default function EarlySellQuotaCalculatorPage() {
         </div>
 
         <header className="mb-8">
+          <p className="text-xs font-mono uppercase tracking-wide text-zinc-500">Lethal Company → Quota</p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Early Sell Quota Calculator (Lethal Company)
           </h1>
