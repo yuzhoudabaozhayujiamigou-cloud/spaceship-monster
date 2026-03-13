@@ -229,8 +229,9 @@ export default function QuotaCalculatorClient() {
       <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-950/70 p-4">
         <h3 className="text-sm font-semibold text-zinc-100">Sell planning (MVP)</h3>
         <p className="mt-1 text-xs text-zinc-400">
-          This is a simple planning helper. It assumes an early-sell penalty when you sell before the deadline.
-          Adjust the penalty later if you confirm exact behavior.
+          This is a simple planning helper. <span className="font-semibold text-zinc-200">Early sell</span> behavior can vary by version/sell timing. We use a
+          conservative placeholder penalty for planning (clearly labeled). Treat it as a buffer and adjust the
+          inputs based on your real runs.
         </p>
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-5">
@@ -336,7 +337,8 @@ export default function QuotaCalculatorClient() {
         </div>
 
         <p className="mt-3 text-xs text-zinc-500">
-          MVP note: Early-sell penalty is a placeholder (20%). If you confirm exact mechanics, we can replace this with the real model.
+          Disclaimer: the early-sell penalty is a planning placeholder (currently 20%). If you can confirm the
+          exact mechanic for your version (or share a reproducible test), we can calibrate this model.
         </p>
       </div>
 
