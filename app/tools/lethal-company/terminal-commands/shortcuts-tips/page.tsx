@@ -212,6 +212,12 @@ export default function TerminalShortcutsTipsPage() {
             >
               Quota calculator
             </Link>
+            <Link
+              href="/tools/quota-calculator/early-sell"
+              className="inline-flex items-center rounded-full border border-emerald-600/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-100 hover:border-emerald-500/60"
+            >
+              Early sell planner
+            </Link>
           </div>
         </header>
 
