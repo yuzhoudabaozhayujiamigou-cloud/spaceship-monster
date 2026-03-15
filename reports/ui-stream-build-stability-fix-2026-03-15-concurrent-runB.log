@@ -1,0 +1,25 @@
+
+> spaceship-monster@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.12
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.0s
+   Linting and checking validity of types ...
+   Collecting page data ...
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/40) ...
+   Generating static pages (10/40) 
+   Generating static pages (20/40) 
+   Generating static pages (30/40) 
+ ✓ Generating static pages (40/40)
+
+> Build error occurred
+[Error: ENOENT: no such file or directory, rename 'E:\dev\3.10\spaceship-monster\.next\export\500.html' -> 'E:\dev\3.10\spaceship-monster\.next\server\pages\500.html'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'rename',
+  path: 'E:\\dev\\3.10\\spaceship-monster\\.next\\export\\500.html',
+  dest: 'E:\\dev\\3.10\\spaceship-monster\\.next\\server\\pages\\500.html'
+}
