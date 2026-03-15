@@ -12,6 +12,12 @@ export const metadata = buildMetadata({
 export default function ToolsPage() {
   const tools = [
     {
+      name: "UI Streaming Demo",
+      description:
+        "Structured event-stream rendering demo (init/block/patch/done) for interactive dashboard output.",
+      href: "/tools/ui-streaming-demo",
+    },
+    {
       name: "SimpleClaw (OpenClaw one-click deploy)",
       description:
         "High-conversion landing page for deploying OpenClaw with reproducible, self-hosted defaults.",
