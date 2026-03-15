@@ -14,7 +14,7 @@ export default function ToolsPage() {
     {
       name: "UI Streaming Demo",
       description:
-        "Structured event-stream rendering demo (init/block/patch/done) for interactive dashboard output.",
+        "Live SSE UI streaming demo with start, abort/reset, retry-on-interruption, and fallback playback (ui.init/ui.block/ui.patch/ui.done).",
       href: "/tools/ui-streaming-demo",
     },
     {
