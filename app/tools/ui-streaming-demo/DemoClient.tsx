@@ -1,15 +1,21 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { StreamBoard, type StreamBlock, type UIGranularity } from "./StreamBlocks";
 
 type UIDoneSource = "api" | "fallback" | "error" | "cancelled";
-type UIGranularity = "brief" | "balanced" | "detailed";
+type UIProviderBranch = "anthropic" | "openai" | "fallback" | "client" | "unknown";
 
 type UIEvent =
   | { type: "ui.init"; title: string; layout?: string }
-  | { type: "ui.block"; id: string; blockType: "kpi" | "control" | "chart" | "text"; [k: string]: unknown }
+  | {
+      type: "ui.block";
+      id: string;
+      blockType: "kpi" | "control" | "chart" | "text" | "table" | "metric-group";
+      [k: string]: unknown;
+    }
   | { type: "ui.patch"; id: string; patch: Record<string, unknown> }
-  | { type: "ui.done"; source?: UIDoneSource }
+  | { type: "ui.done"; source?: UIDoneSource; provider?: UIProviderBranch }
   | {
       type: "ui.error";
       code?: "invalid_input" | "rate_limited" | "internal_error";
@@ -18,19 +24,22 @@ type UIEvent =
       details?: Record<string, unknown>;
     };
 
-type Block = { id: string; blockType: string; [k: string]: unknown };
+type Block = StreamBlock;
 type StopReason = "user" | "restart";
+type DoneInfo = { source: UIDoneSource | "unknown"; provider: UIProviderBranch };
 
 const GRANULARITY_OPTIONS: UIGranularity[] = ["brief", "balanced", "detailed"];
 const GRANULARITY_SET: ReadonlySet<UIGranularity> = new Set(GRANULARITY_OPTIONS);
+const API_STREAM_PATH = "/api/ui-stream/";
 
 const SAMPLE: UIEvent[] = [
-  { type: "ui.init", title: "UI Streaming Local Fallback", layout: "stack" },
+  { type: "ui.init", title: "UI Streaming Local Fallback", layout: "dashboard-2col" },
   {
     type: "ui.block",
     id: "prompt",
     blockType: "text",
     title: "Prompt",
+    column: "full",
     content: "Show a tiny dashboard that updates with ui.patch in real time.",
   },
   {
@@ -38,11 +47,62 @@ const SAMPLE: UIEvent[] = [
     id: "granularity",
     blockType: "control",
     title: "Granularity",
+    column: "full",
     options: GRANULARITY_OPTIONS,
     value: "balanced",
   },
-  { type: "ui.block", id: "answer", blockType: "text", title: "Assistant", content: "" },
-  { type: "ui.block", id: "chars", blockType: "kpi", label: "Generated Chars", value: 0 },
+  { type: "ui.block", id: "answer", blockType: "text", title: "Assistant", content: "", column: "left" },
+  {
+    type: "ui.block",
+    id: "metric_compare",
+    blockType: "metric-group",
+    title: "Compare Metrics",
+    column: "right",
+    metrics: [
+      { id: "chars", label: "Chars", value: 0, delta: 0, tone: "neutral" },
+      { id: "words", label: "Words", value: 0, delta: 0, tone: "neutral" },
+      { id: "sentences", label: "Sentences", value: 0, delta: 0, tone: "neutral" },
+      { id: "read", label: "Read Sec", value: 0, delta: 0, tone: "neutral" },
+    ],
+  },
+  {
+    type: "ui.block",
+    id: "draft_line_chart",
+    blockType: "chart",
+    title: "Draft Growth",
+    column: "left",
+    chart: {
+      type: "line",
+      labels: ["T0"],
+      series: [{ name: "Chars", data: [0] }],
+    },
+  },
+  {
+    type: "ui.block",
+    id: "term_bar_chart",
+    blockType: "chart",
+    title: "Top Terms",
+    column: "right",
+    chart: {
+      type: "bar",
+      labels: ["stream", "patch", "chart"],
+      series: [{ name: "Mentions", data: [0, 0, 0] }],
+    },
+  },
+  {
+    type: "ui.block",
+    id: "update_table",
+    blockType: "table",
+    title: "Patch Timeline",
+    column: "full",
+    columns: [
+      { key: "step", label: "Step" },
+      { key: "snippet", label: "Snippet" },
+      { key: "chars", label: "Chars", align: "right" },
+    ],
+    rows: [{ step: "T0", snippet: "Waiting for first patch...", chars: 0 }],
+  },
+  { type: "ui.block", id: "chars", blockType: "kpi", label: "Generated Chars", value: 0, column: "right" },
   {
     type: "ui.patch",
     id: "answer",
@@ -52,7 +112,52 @@ const SAMPLE: UIEvent[] = [
     },
   },
   { type: "ui.patch", id: "chars", patch: { value: 95 } },
-  { type: "ui.done", source: "fallback" },
+  {
+    type: "ui.patch",
+    id: "metric_compare",
+    patch: {
+      metrics: [
+        { id: "chars", label: "Chars", value: 95, delta: 95, tone: "good" },
+        { id: "words", label: "Words", value: 14, delta: 14, tone: "good" },
+        { id: "sentences", label: "Sentences", value: 2, delta: 2, tone: "neutral" },
+        { id: "read", label: "Read Sec", value: 6, delta: 0, tone: "neutral" },
+      ],
+    },
+  },
+  {
+    type: "ui.patch",
+    id: "draft_line_chart",
+    patch: {
+      chart: {
+        type: "line",
+        labels: ["T1", "T2", "T3", "T4"],
+        series: [{ name: "Chars", data: [21, 44, 73, 95] }],
+      },
+    },
+  },
+  {
+    type: "ui.patch",
+    id: "term_bar_chart",
+    patch: {
+      chart: {
+        type: "bar",
+        labels: ["stream", "patch", "fallback"],
+        series: [{ name: "Mentions", data: [3, 2, 1] }],
+      },
+    },
+  },
+  {
+    type: "ui.patch",
+    id: "update_table",
+    patch: {
+      rows: [
+        { step: "T2", snippet: "This is local fallback playback.", chars: 31 },
+        { step: "T3", snippet: "It proves incremental rendering works.", chars: 67 },
+        { step: "T4", snippet: "Even without API credentials.", chars: 95 },
+      ],
+    },
+  },
+  { type: "ui.done", source: "fallback", provider: "fallback" },
 ];
 
 const STREAM_INACTIVITY_TIMEOUT_MS = 20_000;
@@ -86,6 +191,29 @@ function createSessionId(): string {
 
   const normalized = generated.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64);
   return normalized || "ui_stream_demo";
+}
+
+function createRequestId(): string {
+  const generated =
+    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+  return generated.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64) || "ui_stream_req";
+}
+
+function resolveApiStreamEndpoint(): string {
+  if (typeof window === "undefined") {
+    return API_STREAM_PATH;
+  }
+
+  const { origin, hostname, port } = window.location;
+  const isLocalDevHost = (hostname === "127.0.0.1" || hostname === "localhost") && port === "3000";
+  if (isLocalDevHost) {
+    const localHost = hostname === "127.0.0.1" ? "127.0.0.1" : "localhost";
+    return `http://${localHost}:3000${API_STREAM_PATH}`;
+  }
+
+  return new URL(API_STREAM_PATH, origin).toString();
 }
 
 function getOrCreateSessionId(): string {
@@ -156,6 +284,7 @@ export default function DemoClient() {
   );
   const [granularity, setGranularity] = useState<UIGranularity>("balanced");
   const [title, setTitle] = useState("Waiting for stream...");
+  const [layout, setLayout] = useState("stack");
   const [blocks, setBlocks] = useState<Record<string, Block>>({});
   const [rawLog, setRawLog] = useState<string[]>([]);
   const [done, setDone] = useState(false);
@@ -163,6 +292,8 @@ export default function DemoClient() {
   const [status, setStatus] = useState("Idle");
   const [error, setError] = useState<string | null>(null);
   const [autoReconnectEnabled, setAutoReconnectEnabled] = useState(true);
+  const [apiEndpoint, setApiEndpoint] = useState(API_STREAM_PATH);
+  const [lastDoneInfo, setLastDoneInfo] = useState<DoneInfo | null>(null);
 
   const runningRef = useRef(false);
   const doneSeenRef = useRef(false);
@@ -188,6 +319,7 @@ export default function DemoClient() {
 
     if (evt.type === "ui.init") {
       setTitle(evt.title || "Dashboard");
+      setLayout(evt.layout || "stack");
       return;
     }
 
@@ -224,14 +356,24 @@ export default function DemoClient() {
       }
       doneSeenRef.current = true;
       setDone(true);
-      setStatus(`Stream finished (${evt.source || "unknown"})`);
+      const source = evt.source || "unknown";
+      const provider = evt.provider || "unknown";
+      const doneInfo: DoneInfo = {
+        source,
+        provider,
+      };
+      setLastDoneInfo(doneInfo);
+      appendRawLog(`ui.done source=${doneInfo.source} provider=${doneInfo.provider}`);
+      setStatus(`Stream finished (source=${doneInfo.source}, provider=${doneInfo.provider})`);
     }
   }
 
   function reset(options?: { clearRawLog?: boolean }) {
     setTitle("Waiting for stream...");
+    setLayout("stack");
     setBlocks({});
     setDone(false);
+    setLastDoneInfo(null);
     doneSeenRef.current = false;
     setError(null);
     setStatus("Idle");
@@ -290,6 +432,8 @@ export default function DemoClient() {
     restartGranularityRef.current = null;
 
     const sessionId = getOrCreateSessionId();
+    const endpoint = resolveApiStreamEndpoint();
+    setApiEndpoint(endpoint);
     const maxAttempts = autoReconnectEnabled ? MAX_AUTO_RECONNECT_ATTEMPTS + 1 : 1;
 
     try {
@@ -299,7 +443,7 @@ export default function DemoClient() {
           setStatus(`Stream interrupted. Reconnecting (${attempt}/${MAX_AUTO_RECONNECT_ATTEMPTS})...`);
           await sleep(350);
         } else {
-          setStatus("Connecting to /api/ui-stream/ ...");
+          setStatus(`Connecting to ${endpoint} ...`);
         }
 
         const controller = new AbortController();
@@ -319,17 +463,37 @@ export default function DemoClient() {
 
         try {
           touch();
-          appendRawLog(`POST /api/ui-stream granularity=${requestGranularity}`);
+          const requestUrl =
+            typeof window === "undefined" ? new URL(endpoint) : new URL(endpoint, window.location.origin);
+          requestUrl.searchParams.set("_ts", String(Date.now()));
+          requestUrl.searchParams.set("_attempt", String(attempt));
+          const requestId = createRequestId();
+          appendRawLog(`POST ${requestUrl.toString()} granularity=${requestGranularity} requestId=${requestId}`);
 
-          const response = await fetch("/api/ui-stream/", {
+          const response = await fetch(requestUrl, {
             method: "POST",
+            cache: "no-store",
             headers: {
               "Content-Type": "application/json",
               "x-ui-session-id": sessionId,
+              "x-ui-request-id": requestId,
+              "Cache-Control": "no-cache, no-store, max-age=0",
+              Pragma: "no-cache",
             },
             body: JSON.stringify({ prompt, granularity: requestGranularity }),
             signal: controller.signal,
           });
+
+          appendRawLog(
+            `HTTP ${response.status} redirected=${response.redirected ? "yes" : "no"} finalUrl=${response.url || "n/a"}`,
+          );
+
+          if (response.url) {
+            const finalOrigin = new URL(response.url).origin;
+            if (finalOrigin !== requestUrl.origin) {
+              throw new Error(`Unexpected redirect origin: ${finalOrigin} (expected ${requestUrl.origin}).`);
+            }
+          }
 
           if (!response.body) {
             throw new Error(`API request failed: ${response.status}`);
@@ -416,13 +580,13 @@ export default function DemoClient() {
     } catch (err) {
       if (stopRequestedRef.current) {
         if (stopReasonRef.current === "user") {
-          applyEvent({ type: "ui.done", source: "cancelled" }, { logAsRaw: true });
+          applyEvent({ type: "ui.done", source: "cancelled", provider: "client" }, { logAsRaw: true });
           setStatus("Stream stopped by user.");
         }
       } else {
         const message = err instanceof Error ? err.message : "Unknown streaming error";
         applyEvent({ type: "ui.error", code: "internal_error", message }, { logAsRaw: true });
-        applyEvent({ type: "ui.done", source: "error" }, { logAsRaw: true });
+        applyEvent({ type: "ui.done", source: "error", provider: "fallback" }, { logAsRaw: true });
         setStatus("API stream failed.");
       }
     } finally {
@@ -561,97 +725,24 @@ export default function DemoClient() {
       </label>
 
       <div className="text-sm text-zinc-400">Status: {status}</div>
+      <div className="text-xs text-zinc-500">Endpoint: {apiEndpoint}</div>
+      {lastDoneInfo && (
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+          ✓ Stream completed — Source: <span className="font-semibold">{lastDoneInfo.source}</span>, Provider: <span className="font-semibold">{lastDoneInfo.provider}</span>
+        </div>
+      )}
       <div className="text-xs text-zinc-500">Inactivity timeout: {Math.round(STREAM_INACTIVITY_TIMEOUT_MS / 1000)}s</div>
       {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
 
-      {blockList.map((b) => {
-        if (b.blockType === "text") {
-          return (
-            <div key={b.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-              <div className="text-sm text-zinc-400">{String(b.title ?? "")}</div>
-              <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-100">{String(b.content ?? "")}</div>
-            </div>
-          );
-        }
-
-        if (b.blockType === "kpi") {
-          const value = b.value;
-          const displayValue =
-            typeof value === "number" ? value.toLocaleString() : value === undefined ? "-" : String(value);
-          return (
-            <div key={b.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-              <div className="text-sm text-zinc-400">{String(b.label ?? "")}</div>
-              <div className="mt-1 text-2xl font-mono">{displayValue}</div>
-            </div>
-          );
-        }
-
-        if (b.blockType === "control") {
-          return (
-            <div key={b.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-              <div className="mb-2 text-sm text-zinc-400">Granularity</div>
-              <div className="flex gap-2">
-                {(Array.isArray(b.options) ? (b.options as string[]) : []).map((opt: string) => {
-                  const isActive = opt === b.value || opt === granularity;
-                  const canUse = isGranularity(opt);
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => {
-                        if (canUse) {
-                          void switchGranularity(opt);
-                        }
-                      }}
-                      disabled={!canUse}
-                      className={`rounded-md px-3 py-1 text-xs ${
-                        isActive
-                          ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
-                          : "border border-zinc-700 bg-zinc-800 text-zinc-300"
-                      } disabled:cursor-not-allowed disabled:opacity-40`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        }
-
-        if (b.blockType === "chart") {
-          const firstSeries =
-            Array.isArray(b.series) && b.series.length > 0 && typeof b.series[0] === "object" && b.series[0] !== null
-              ? (b.series[0] as { data?: unknown })
-              : undefined;
-          const data = Array.isArray(firstSeries?.data) ? (firstSeries.data as number[]) : [];
-          const max = Math.max(...data, 1);
-          return (
-            <div key={b.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-              <div className="mb-3 text-sm text-zinc-400">{String(b.title ?? "")}</div>
-              <div className="space-y-2">
-                {(Array.isArray(b.labels) ? (b.labels as string[]) : []).map((label: string, idx: number) => (
-                  <div key={label} className="grid grid-cols-[56px_1fr_120px] items-center gap-2 text-xs">
-                    <span className="text-zinc-400">{label}</span>
-                    <div className="h-2 rounded bg-zinc-800">
-                      <div
-                        className="h-2 rounded bg-emerald-400"
-                        style={{ width: `${Math.max((data[idx] / max) * 100, 2)}%` }}
-                      />
-                    </div>
-                    <span className="font-mono text-zinc-200">{Number(data[idx] || 0).toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <pre key={b.id} className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3 text-xs text-zinc-300">
-            {JSON.stringify(b, null, 2)}
-          </pre>
-        );
-      })}
+      <StreamBoard
+        blocks={blockList}
+        layout={layout}
+        granularity={granularity}
+        isGranularityOption={isGranularity}
+        onGranularityChange={(next) => {
+          void switchGranularity(next);
+        }}
+      />
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
         <div className="mb-3 flex items-center justify-between">

@@ -1,0 +1,69 @@
+
+> spaceship-monster@0.1.0 build
+> node scripts/stable-next-build.mjs
+
+   ▲ Next.js 15.5.12
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.8s
+   Linting and checking validity of types ...
+   Collecting page data ...
+ ⚠ Using edge runtime on a page currently disables static generation for that page
+   Generating static pages (0/39) ...
+   Generating static pages (9/39) 
+   Generating static pages (19/39) 
+   Generating static pages (29/39) 
+ ✓ Generating static pages (39/39)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                    Size  First Load JS
+┌ ○ /                                                         221 B         106 kB
+├ ○ /_not-found                                               996 B         103 kB
+├ ƒ /api/ui-stream                                            136 B         102 kB
+├ ○ /blog                                                     221 B         106 kB
+├ ○ /blog/best-crops-every-season                             171 B         106 kB
+├ ○ /blog/greenhouse-layout-guide                             171 B         106 kB
+├ ○ /blog/keg-vs-jar-profit-guide                             171 B         106 kB
+├ ○ /blog/lethal-company-beginner-survival-guide              221 B         106 kB
+├ ○ /guides/profit-quota-formula                              221 B         106 kB
+├ ƒ /og                                                       136 B         102 kB
+├ ○ /presets                                                  221 B         106 kB
+├ ○ /robots.txt                                               136 B         102 kB
+├ ○ /simpleclaw                                               221 B         106 kB
+├ ○ /sitemap.xml                                              136 B         102 kB
+├ ○ /terminal/commands                                      1.54 kB         107 kB
+├ ○ /tools                                                    221 B         106 kB
+├ ○ /tools/lethal-company                                     221 B         106 kB
+├ ○ /tools/lethal-company/bestiary                            221 B         106 kB
+├ ○ /tools/lethal-company/items                             1.51 kB         107 kB
+├ ○ /tools/lethal-company/moons                               221 B         106 kB
+├ ○ /tools/lethal-company/moons/tier-list                   1.24 kB         107 kB
+├ ○ /tools/lethal-company/quota-calculator                  2.67 kB         108 kB
+├ ○ /tools/lethal-company/ship-upgrades                       221 B         106 kB
+├ ○ /tools/lethal-company/terminal-commands                   221 B         106 kB
+├ ○ /tools/lethal-company/terminal-commands/secret            221 B         106 kB
+├ ○ /tools/lethal-company/terminal-commands/shortcuts-tips    221 B         106 kB
+├ ○ /tools/lethal-company/terminal/shortcuts-abbreviations    221 B         106 kB
+├ ○ /tools/lethal-company/version-69-changes                  221 B         106 kB
+├ ○ /tools/palworld                                           221 B         106 kB
+├ ○ /tools/palworld/breeding-calculator                     1.33 kB         107 kB
+├ ○ /tools/palworld/paldeck                                 2.93 kB         108 kB
+├ ○ /tools/quota-calculator/early-sell                        221 B         106 kB
+├ ○ /tools/satisfactory                                       221 B         106 kB
+├ ○ /tools/satisfactory/belt-pipe-calculator                2.19 kB         111 kB
+├ ○ /tools/satisfactory/building-planner                    3.39 kB         112 kB
+├ ○ /tools/satisfactory/power-calculator                    3.33 kB         112 kB
+├ ○ /tools/satisfactory/production-calculator               2.97 kB         112 kB
+├ ○ /tools/satisfactory/resource-map                        2.42 kB         111 kB
+└ ○ /tools/ui-streaming-demo                                7.04 kB         113 kB
++ First Load JS shared by all                                102 kB
+  ├ chunks/1255-1bba8163da1482d5.js                           46 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js                     54.2 kB
+  └ other shared chunks (total)                              1.9 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
