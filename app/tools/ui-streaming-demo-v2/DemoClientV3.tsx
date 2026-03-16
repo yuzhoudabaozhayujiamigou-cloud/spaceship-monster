@@ -29,6 +29,13 @@ type StopReason = 'user' | 'restart';
 type VizPoint = { id: number; label: string; chars: number; deltaChars: number; cps: number };
 type DemoTone = 'primary' | 'neutral' | 'danger' | 'info';
 type AnimationStyle = 'rotate' | 'pulse' | 'wave' | 'spin' | 'default';
+type ThreeDParams = {
+  color: string;
+  distort: number;
+  speed: number;
+  autoRotate: boolean;
+  autoRotateSpeed: number;
+};
 
 const GRANULARITY_OPTIONS: UIGranularity[] = ['brief', 'balanced', 'detailed'];
 const GRANULARITY_SET: ReadonlySet<UIGranularity> = new Set(GRANULARITY_OPTIONS);
@@ -105,6 +112,33 @@ function detectAnimationStyle(prompt: string): AnimationStyle {
   }
 
   return 'default';
+}
+
+async function generateThreeDParams(prompt: string): Promise<ThreeDParams> {
+  try {
+    const response = await fetch('/api/generate-3d-params', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to generate 3D params');
+    }
+
+    const data = await response.json();
+    return data.params;
+  } catch (error) {
+    console.error('Error generating 3D params:', error);
+    // 返回默认参数
+    return {
+      color: '#3b82f6',
+      distort: 0.5,
+      speed: 2,
+      autoRotate: true,
+      autoRotateSpeed: 2,
+    };
+  }
 }
 
 function toneClasses(tone: DemoTone): string {
@@ -227,6 +261,13 @@ export default function DemoClientV3() {
   const [rawLog, setRawLog] = useState<string[]>([]);
   const [vizPoints, setVizPoints] = useState<VizPoint[]>([]);
   const [animationStyle, setAnimationStyle] = useState<AnimationStyle>('default');
+  const [threeDParams, setThreeDParams] = useState<ThreeDParams>({
+    color: '#3b82f6',
+    distort: 0.5,
+    speed: 2,
+    autoRotate: true,
+    autoRotateSpeed: 2,
+  });
 
   const snapshot = useStreamSnapshot(sessionId);
 
@@ -300,6 +341,11 @@ export default function DemoClientV3() {
 
     // 检测动画风格
     setAnimationStyle(detectAnimationStyle(prompt));
+
+    // 生成 3D 参数
+    generateThreeDParams(prompt).then(params => {
+      setThreeDParams(params);
+    });
 
     markStreamActive(sessionId);
     setStatus('Connecting...');
@@ -656,30 +702,29 @@ export default function DemoClientV3() {
                           </Suspense>
                         </Canvas>
                       ) : (
-                        // 默认效果 - 波形图
-                        <motion.svg
-                          viewBox="0 0 100 100"
-                          preserveAspectRatio="none"
-                          className="absolute inset-0 w-full h-full"
-                          animate={{ scale: [1, 1.02, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        >
-                          <defs>
-                            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="rgb(56, 189, 248)" stopOpacity="0.4" />
-                              <stop offset="100%" stopColor="rgb(129, 140, 248)" stopOpacity="0.9" />
-                            </linearGradient>
-                          </defs>
-                          <line x1="0" y1="90" x2="100" y2="90" stroke="#334155" strokeWidth="0.7" />
-                          <path
-                            d={buildWavePath(vizPoints)}
-                            fill="none"
-                            stroke="url(#waveGradient)"
-                            strokeWidth="2"
-                            vectorEffect="non-scaling-stroke"
-                            className="drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
-                          />
-                        </motion.svg>
+                        // 默认效果 - AI 动态生成的 3D 球体
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                          <ambientLight intensity={0.5} />
+                          <pointLight position={[10, 10, 10]} intensity={1} />
+                          <Suspense fallback={null}>
+                            <Sphere args={[1, 32, 32]}>
+                              <MeshDistortMaterial
+                                color={threeDParams.color}
+                                attach="material"
+                                distort={threeDParams.distort}
+                                speed={threeDParams.speed}
+                                roughness={0.3}
+                              />
+                            </Sphere>
+                            {threeDParams.autoRotate && (
+                              <OrbitControls
+                                enableZoom={false}
+                                autoRotate
+                                autoRotateSpeed={threeDParams.autoRotateSpeed}
+                              />
+                            )}
+                          </Suspense>
+                        </Canvas>
                       )}
                     </div>
 
