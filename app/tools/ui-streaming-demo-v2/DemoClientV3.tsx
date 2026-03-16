@@ -581,52 +581,170 @@ export default function DemoClientV3() {
                   <h3 className="text-sm font-medium text-slate-200">实时可视化总览</h3>
 
                   <div className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-                    {/* 波形图 - 根据输入内容动态动画 */}
-                    <div className="relative h-24 rounded-xl bg-slate-950/50 border border-slate-800/30 overflow-hidden">
-                      <motion.svg
-                        viewBox="0 0 100 100"
-                        preserveAspectRatio="none"
-                        className="absolute inset-0 w-full h-full"
-                        animate={
-                          animationStyle === 'rotate'
-                            ? { rotateY: [0, 360], scale: [1, 1.05, 1] }
-                            : animationStyle === 'pulse'
-                            ? { scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }
-                            : animationStyle === 'wave'
-                            ? { x: [0, 10, 0, -10, 0], y: [0, -5, 0, 5, 0] }
-                            : animationStyle === 'spin'
-                            ? { rotate: [0, 360] }
-                            : { scale: [1, 1.02, 1] }
-                        }
-                        transition={
-                          animationStyle === 'rotate'
-                            ? { rotateY: { duration: 8, repeat: Infinity, ease: "linear" }, scale: { duration: 4, repeat: Infinity, ease: "easeInOut" } }
-                            : animationStyle === 'pulse'
-                            ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                            : animationStyle === 'wave'
-                            ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                            : animationStyle === 'spin'
-                            ? { duration: 4, repeat: Infinity, ease: "linear" }
-                            : { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                        }
-                        style={{ transformStyle: "preserve-3d" }}
-                      >
-                        <defs>
-                          <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="rgb(56, 189, 248)" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="rgb(129, 140, 248)" stopOpacity="0.9" />
-                          </linearGradient>
-                        </defs>
-                        <line x1="0" y1="90" x2="100" y2="90" stroke="#334155" strokeWidth="0.7" />
-                        <path
-                          d={buildWavePath(vizPoints)}
-                          fill="none"
-                          stroke="url(#waveGradient)"
-                          strokeWidth="2"
-                          vectorEffect="non-scaling-stroke"
-                          className="drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
-                        />
-                      </motion.svg>
+                    {/* 3D 可视化容器 - 根据输入内容动态渲染 */}
+                    <div className="relative h-48 rounded-xl bg-slate-950/50 border border-slate-800/30 overflow-hidden">
+                      {animationStyle === 'rotate' ? (
+                        // 地球自转效果 - 3D 球体
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <motion.div
+                            className="relative w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 via-green-400 to-blue-600"
+                            style={{
+                              boxShadow: '0 0 60px rgba(59, 130, 246, 0.6), inset -20px -20px 40px rgba(0, 0, 0, 0.4)',
+                            }}
+                            animate={{
+                              rotateY: [0, 360],
+                            }}
+                            transition={{
+                              duration: 8,
+                              repeat: Infinity,
+                              ease: "linear"
+                            }}
+                          >
+                            {/* 地球纹理效果 */}
+                            <div className="absolute inset-0 rounded-full opacity-30 bg-gradient-to-r from-transparent via-white to-transparent" />
+                            <motion.div
+                              className="absolute inset-0 rounded-full"
+                              style={{
+                                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)',
+                              }}
+                              animate={{
+                                opacity: [0.3, 0.6, 0.3],
+                              }}
+                              transition={{
+                                duration: 4,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            />
+                          </motion.div>
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
+                            地球自转模拟
+                          </div>
+                        </div>
+                      ) : animationStyle === 'pulse' ? (
+                        // 心跳效果 - 脉冲波纹
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="relative">
+                            <motion.div
+                              className="w-24 h-24 rounded-full bg-red-500/80"
+                              animate={{
+                                scale: [1, 1.3, 1],
+                                opacity: [0.8, 0.4, 0.8],
+                              }}
+                              transition={{
+                                duration: 1.2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                              }}
+                            />
+                            <motion.div
+                              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-red-400"
+                              animate={{
+                                scale: [1, 2, 2],
+                                opacity: [0.8, 0, 0],
+                              }}
+                              transition={{
+                                duration: 1.2,
+                                repeat: Infinity,
+                                ease: "easeOut"
+                              }}
+                            />
+                            <motion.div
+                              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-red-400"
+                              animate={{
+                                scale: [1, 2, 2],
+                                opacity: [0.8, 0, 0],
+                              }}
+                              transition={{
+                                duration: 1.2,
+                                repeat: Infinity,
+                                ease: "easeOut",
+                                delay: 0.6
+                              }}
+                            />
+                          </div>
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
+                            心跳脉冲模拟
+                          </div>
+                        </div>
+                      ) : animationStyle === 'wave' ? (
+                        // 海浪效果 - 波浪动画
+                        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute w-full h-16 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"
+                              style={{
+                                bottom: `${i * 20}%`,
+                              }}
+                              animate={{
+                                x: ['-100%', '100%'],
+                                opacity: [0, 0.6, 0],
+                              }}
+                              transition={{
+                                duration: 3,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                                delay: i * 0.3
+                              }}
+                            />
+                          ))}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
+                            海浪波动模拟
+                          </div>
+                        </div>
+                      ) : animationStyle === 'spin' ? (
+                        // 螺旋效果 - 漩涡动画
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {[0, 1, 2, 3, 4, 5].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="absolute rounded-full border-2 border-purple-500/40"
+                              style={{
+                                width: `${(i + 1) * 30}px`,
+                                height: `${(i + 1) * 30}px`,
+                              }}
+                              animate={{
+                                rotate: [0, 360],
+                                scale: [1, 1.2, 1],
+                              }}
+                              transition={{
+                                duration: 4 - i * 0.3,
+                                repeat: Infinity,
+                                ease: "linear"
+                              }}
+                            />
+                          ))}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
+                            螺旋漩涡模拟
+                          </div>
+                        </div>
+                      ) : (
+                        // 默认效果 - 波形图
+                        <motion.svg
+                          viewBox="0 0 100 100"
+                          preserveAspectRatio="none"
+                          className="absolute inset-0 w-full h-full"
+                          animate={{ scale: [1, 1.02, 1] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <defs>
+                            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="rgb(56, 189, 248)" stopOpacity="0.4" />
+                              <stop offset="100%" stopColor="rgb(129, 140, 248)" stopOpacity="0.9" />
+                            </linearGradient>
+                          </defs>
+                          <line x1="0" y1="90" x2="100" y2="90" stroke="#334155" strokeWidth="0.7" />
+                          <path
+                            d={buildWavePath(vizPoints)}
+                            fill="none"
+                            stroke="url(#waveGradient)"
+                            strokeWidth="2"
+                            vectorEffect="non-scaling-stroke"
+                            className="drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                          />
+                        </motion.svg>
+                      )}
                     </div>
 
                     {/* 柱状图 */}
