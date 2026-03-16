@@ -12,7 +12,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { StreamBoard, type UIGranularity } from '../ui-streaming-demo/StreamBlocks';
+import { type UIGranularity } from '../ui-streaming-demo/StreamBlocks';
 import {
   initStream,
   applyEvent,
@@ -494,51 +494,26 @@ export default function DemoClientV3() {
             </div>
 
             {/* 操作按钮 */}
-            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6 backdrop-blur-sm">
-              <div className="mb-3 text-xs uppercase tracking-[0.16em] text-slate-400">Controls</div>
-              <div className="grid grid-cols-2 gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => void streamFromApi()}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('primary')}`}
-                >
-                  {running ? 'Streaming...' : 'Start'}
-                </motion.button>
+            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6 backdrop-blur-sm space-y-3">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => void streamFromApi()}
+                disabled={running}
+                className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {running ? 'Streaming...' : 'Start Stream'}
+              </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => requestStop('user')}
-                  disabled={!running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('danger')}`}
-                >
-                  Stop
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => {
-                    void replayVisualizationSample();
-                  }}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('info')}`}
-                >
-                  Replay
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => resetStreamState({ keepLog: true })}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('neutral')}`}
-                >
-                  Reset
-                </motion.button>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => requestStop('user')}
+                disabled={!running}
+                className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Stop
+              </motion.button>
             </div>
 
             {/* 状态指示器 */}
@@ -565,7 +540,7 @@ export default function DemoClientV3() {
 
             {/* 实时可视化面板 */}
             <AnimatePresence>
-              {vizPoints.length > 0 && (
+              {(vizPoints.length > 0 || snapshot?.phase === 'active' || snapshot?.phase === 'completed') && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -690,36 +665,59 @@ export default function DemoClientV3() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
+                      className="space-y-4"
                     >
-                      <StreamBoard
-                        blocks={blockList}
-                        layout={snapshot?.layout || 'stack'}
-                        granularity={granularity}
-                        isGranularityOption={isGranularity}
-                        onGranularityChange={(next) => {
-                          void switchGranularity(next);
-                        }}
-                      />
+                      {/* AI 生成的内容 */}
+                      {(() => {
+                        const answerBlock = snapshot?.blocks?.answer as { content?: string } | undefined;
+                        const content = answerBlock?.content || '';
+
+                        if (content) {
+                          return (
+                            <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-6">
+                              <div className="text-sm font-medium text-slate-300 mb-3">AI 回答</div>
+                              <div className="prose prose-invert prose-slate max-w-none">
+                                <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">{content}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-6">
+                            <div className="text-sm text-slate-400">等待 AI 生成内容...</div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* 统计信息 */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-4">
+                          <div className="text-xs text-slate-400 mb-1">字符数</div>
+                          <div className="text-2xl font-semibold text-emerald-400">{generatedChars}</div>
+                        </div>
+                        <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-4">
+                          <div className="text-xs text-slate-400 mb-1">单词数</div>
+                          <div className="text-2xl font-semibold text-cyan-400">
+                            {(() => {
+                              const answerBlock = snapshot?.blocks?.answer as { content?: string } | undefined;
+                              const content = answerBlock?.content || '';
+                              return content.split(/\s+/).filter(w => w.length > 0).length;
+                            })()}
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-4">
+                          <div className="text-xs text-slate-400 mb-1">生成速度</div>
+                          <div className="text-2xl font-semibold text-indigo-400">{avgSpeed.toFixed(1)}<span className="text-sm text-slate-500 ml-1">c/s</span></div>
+                        </div>
+                        <div className="rounded-xl border border-slate-800/50 bg-slate-950/30 p-4">
+                          <div className="text-xs text-slate-400 mb-1">状态</div>
+                          <div className="text-sm font-medium text-slate-300">{status}</div>
+                        </div>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                <div className="mt-6 rounded-2xl border border-slate-800/50 bg-slate-900/50 p-4 backdrop-blur-sm">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Raw Event Log</div>
-                    <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      onClick={() => setRawLog([])}
-                      className={`rounded-lg border px-2.5 py-1.5 text-[11px] transition ${toneClasses('neutral')}`}
-                    >
-                      Clear
-                    </motion.button>
-                  </div>
-                  <pre className="max-h-52 overflow-auto whitespace-pre-wrap rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-300">
-                    {rawLog.length > 0 ? rawLog.join('\n\n') : '(empty)'}
-                  </pre>
-                </div>
               </div>
             </div>
           </motion.div>
