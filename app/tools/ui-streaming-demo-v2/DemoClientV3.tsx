@@ -10,8 +10,10 @@
 
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Sphere, MeshDistortMaterial } from '@react-three/drei';
 import { type UIGranularity } from '../ui-streaming-demo/StreamBlocks';
 import {
   initStream,
@@ -580,145 +582,79 @@ export default function DemoClientV3() {
                 >
                   <h3 className="text-sm font-medium text-slate-200">实时可视化总览</h3>
 
-                  <div className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
+                  <div className="space-y-3">
                     {/* 3D 可视化容器 - 根据输入内容动态渲染 */}
-                    <div className="relative h-48 rounded-xl bg-slate-950/50 border border-slate-800/30 overflow-hidden">
+                    <div className="relative h-96 rounded-xl bg-slate-950/50 border border-slate-800/30 overflow-hidden">
                       {animationStyle === 'rotate' ? (
-                        // 地球自转效果 - 3D 球体
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <motion.div
-                            className="relative w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 via-green-400 to-blue-600"
-                            style={{
-                              boxShadow: '0 0 60px rgba(59, 130, 246, 0.6), inset -20px -20px 40px rgba(0, 0, 0, 0.4)',
-                            }}
-                            animate={{
-                              rotateY: [0, 360],
-                            }}
-                            transition={{
-                              duration: 8,
-                              repeat: Infinity,
-                              ease: "linear"
-                            }}
-                          >
-                            {/* 地球纹理效果 */}
-                            <div className="absolute inset-0 rounded-full opacity-30 bg-gradient-to-r from-transparent via-white to-transparent" />
-                            <motion.div
-                              className="absolute inset-0 rounded-full"
-                              style={{
-                                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)',
-                              }}
-                              animate={{
-                                opacity: [0.3, 0.6, 0.3],
-                              }}
-                              transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            />
-                          </motion.div>
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
-                            地球自转模拟
-                          </div>
-                        </div>
+                        // 地球自转效果 - 真实 3D 球体
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                          <ambientLight intensity={0.5} />
+                          <directionalLight position={[10, 10, 5]} intensity={1} />
+                          <Suspense fallback={null}>
+                            <Sphere args={[1, 64, 64]} rotation={[0, 0, 0]}>
+                              <MeshDistortMaterial
+                                color="#3b82f6"
+                                attach="material"
+                                distort={0.3}
+                                speed={2}
+                                roughness={0.4}
+                              />
+                            </Sphere>
+                            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={2} />
+                          </Suspense>
+                        </Canvas>
                       ) : animationStyle === 'pulse' ? (
-                        // 心跳效果 - 脉冲波纹
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="relative">
-                            <motion.div
-                              className="w-24 h-24 rounded-full bg-red-500/80"
-                              animate={{
-                                scale: [1, 1.3, 1],
-                                opacity: [0.8, 0.4, 0.8],
-                              }}
-                              transition={{
-                                duration: 1.2,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                              }}
-                            />
-                            <motion.div
-                              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-red-400"
-                              animate={{
-                                scale: [1, 2, 2],
-                                opacity: [0.8, 0, 0],
-                              }}
-                              transition={{
-                                duration: 1.2,
-                                repeat: Infinity,
-                                ease: "easeOut"
-                              }}
-                            />
-                            <motion.div
-                              className="absolute inset-0 w-24 h-24 rounded-full border-4 border-red-400"
-                              animate={{
-                                scale: [1, 2, 2],
-                                opacity: [0.8, 0, 0],
-                              }}
-                              transition={{
-                                duration: 1.2,
-                                repeat: Infinity,
-                                ease: "easeOut",
-                                delay: 0.6
-                              }}
-                            />
-                          </div>
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
-                            心跳脉冲模拟
-                          </div>
-                        </div>
+                        // 心跳效果 - 3D 脉冲球体
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                          <ambientLight intensity={0.5} />
+                          <pointLight position={[10, 10, 10]} intensity={1} />
+                          <Suspense fallback={null}>
+                            <Sphere args={[1, 32, 32]}>
+                              <MeshDistortMaterial
+                                color="#ef4444"
+                                attach="material"
+                                distort={0.6}
+                                speed={5}
+                                roughness={0.2}
+                              />
+                            </Sphere>
+                          </Suspense>
+                        </Canvas>
                       ) : animationStyle === 'wave' ? (
-                        // 海浪效果 - 波浪动画
-                        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                          {[0, 1, 2, 3, 4].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute w-full h-16 bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"
-                              style={{
-                                bottom: `${i * 20}%`,
-                              }}
-                              animate={{
-                                x: ['-100%', '100%'],
-                                opacity: [0, 0.6, 0],
-                              }}
-                              transition={{
-                                duration: 3,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: i * 0.3
-                              }}
-                            />
-                          ))}
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
-                            海浪波动模拟
-                          </div>
-                        </div>
+                        // 海浪效果 - 3D 波浪
+                        <Canvas camera={{ position: [0, 2, 5], fov: 45 }}>
+                          <ambientLight intensity={0.5} />
+                          <pointLight position={[10, 10, 10]} intensity={1} />
+                          <Suspense fallback={null}>
+                            <Sphere args={[1.5, 32, 32]} position={[0, 0, 0]}>
+                              <MeshDistortMaterial
+                                color="#06b6d4"
+                                attach="material"
+                                distort={0.8}
+                                speed={3}
+                                roughness={0.1}
+                              />
+                            </Sphere>
+                          </Suspense>
+                        </Canvas>
                       ) : animationStyle === 'spin' ? (
-                        // 螺旋效果 - 漩涡动画
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {[0, 1, 2, 3, 4, 5].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute rounded-full border-2 border-purple-500/40"
-                              style={{
-                                width: `${(i + 1) * 30}px`,
-                                height: `${(i + 1) * 30}px`,
-                              }}
-                              animate={{
-                                rotate: [0, 360],
-                                scale: [1, 1.2, 1],
-                              }}
-                              transition={{
-                                duration: 4 - i * 0.3,
-                                repeat: Infinity,
-                                ease: "linear"
-                              }}
-                            />
-                          ))}
-                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-slate-400">
-                            螺旋漩涡模拟
-                          </div>
-                        </div>
+                        // 螺旋效果 - 3D 螺旋
+                        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
+                          <ambientLight intensity={0.5} />
+                          <pointLight position={[10, 10, 10]} intensity={1} />
+                          <Suspense fallback={null}>
+                            <Sphere args={[1, 32, 32]}>
+                              <MeshDistortMaterial
+                                color="#a855f7"
+                                attach="material"
+                                distort={1}
+                                speed={4}
+                                roughness={0.3}
+                              />
+                            </Sphere>
+                            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={5} />
+                          </Suspense>
+                        </Canvas>
                       ) : (
                         // 默认效果 - 波形图
                         <motion.svg
@@ -747,7 +683,7 @@ export default function DemoClientV3() {
                       )}
                     </div>
 
-                    {/* 柱状图 */}
+                    {/* 实时数据柱状图 */}
                     <div className="flex h-24 items-end gap-1 rounded-xl border border-slate-800/30 bg-slate-950/50 p-2">
                       {visualBars.length === 0 ? (
                         <div className="w-full text-center text-[11px] text-slate-500">Waiting events...</div>
