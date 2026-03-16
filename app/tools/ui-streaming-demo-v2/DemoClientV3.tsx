@@ -97,7 +97,7 @@ function createDemoSampleEvents(prompt: string, granularity: UIGranularity): Str
   const contentC = `${contentB}\nGranularity: ${granularity}. Prompt: ${prompt.slice(0, 40)}${prompt.length > 40 ? '...' : ''}`;
 
   return [
-    { type: 'ui.init', title: 'UI Streaming Visual Demo', layout: 'dashboard-2col' },
+    { type: 'ui.init', title: 'AI 回答', layout: 'dashboard-2col' },
     { type: 'ui.block', id: 'prompt', blockType: 'text', title: 'Prompt', column: 'full', content: prompt },
     {
       type: 'ui.block',

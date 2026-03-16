@@ -982,7 +982,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       const dashboard = createStructuredDashboardPatcher(send, { prompt, granularity });
       let streamInitialized = false;
       try {
-        send({ type: "ui.init", title: "UI Streaming Visual Demo V2", layout: "dashboard-2col" });
+        send({ type: "ui.init", title: "AI 回答", layout: "dashboard-2col" });
         dashboard.emitInitialBlocks();
         streamInitialized = true;
         let result: StreamResult;
@@ -1006,7 +1006,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         }
         try {
           if (!streamInitialized) {
-            send({ type: "ui.init", title: "UI Streaming Visual Demo V2", layout: "dashboard-2col" });
+            send({ type: "ui.init", title: "AI 回答", layout: "dashboard-2col" });
             dashboard.emitInitialBlocks();
             streamInitialized = true;
           }
