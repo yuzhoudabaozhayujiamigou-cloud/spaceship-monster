@@ -415,7 +415,7 @@ export default function DemoClientV3() {
     const now = Date.now();
     const previous = vizRef.current;
     const nextChars = Math.max(generatedChars, 0);
-    if (nextChars === previous.chars) {
+    if (nextChars === previous.chars && vizPoints.length > 0) {
       return;
     }
 
@@ -429,7 +429,7 @@ export default function DemoClientV3() {
       ...existing.slice(-(VIZ_WINDOW_SIZE - 1)),
       { id: now, label, chars: nextChars, deltaChars, cps },
     ]);
-  }, [generatedChars]);
+  }, [generatedChars, vizPoints.length]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
@@ -494,51 +494,26 @@ export default function DemoClientV3() {
             </div>
 
             {/* 操作按钮 */}
-            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6 backdrop-blur-sm">
-              <div className="mb-3 text-xs uppercase tracking-[0.16em] text-slate-400">Controls</div>
-              <div className="grid grid-cols-2 gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => void streamFromApi()}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('primary')}`}
-                >
-                  {running ? 'Streaming...' : 'Start'}
-                </motion.button>
+            <div className="rounded-2xl border border-slate-800/50 bg-slate-900/50 p-6 backdrop-blur-sm space-y-3">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => void streamFromApi()}
+                disabled={running}
+                className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                {running ? 'Streaming...' : 'Start Stream'}
+              </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => requestStop('user')}
-                  disabled={!running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('danger')}`}
-                >
-                  Stop
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => {
-                    void replayVisualizationSample();
-                  }}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('info')}`}
-                >
-                  Replay
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => resetStreamState({ keepLog: true })}
-                  disabled={running}
-                  className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-45 ${toneClasses('neutral')}`}
-                >
-                  Reset
-                </motion.button>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => requestStop('user')}
+                disabled={!running}
+                className="w-full rounded-xl border border-slate-700/50 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Stop
+              </motion.button>
             </div>
 
             {/* 状态指示器 */}
@@ -551,15 +526,6 @@ export default function DemoClientV3() {
               <div className="flex items-center gap-3">
                 <div className={`h-2 w-2 rounded-full ${running ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
                 <span className="text-sm text-slate-300">{status}</span>
-              </div>
-              <div className="mt-3 space-y-1 text-xs text-slate-400">
-                <div>Phase: {snapshot?.phase || 'idle'}</div>
-                <div>Endpoint: {apiEndpoint}</div>
-                {snapshot?.doneInfo ? (
-                  <div>
-                    Done: {snapshot.doneInfo.source}/{snapshot.doneInfo.provider}
-                  </div>
-                ) : null}
               </div>
             </motion.div>
 
@@ -703,23 +669,6 @@ export default function DemoClientV3() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                <div className="mt-6 rounded-2xl border border-slate-800/50 bg-slate-900/50 p-4 backdrop-blur-sm">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Raw Event Log</div>
-                    <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      onClick={() => setRawLog([])}
-                      className={`rounded-lg border px-2.5 py-1.5 text-[11px] transition ${toneClasses('neutral')}`}
-                    >
-                      Clear
-                    </motion.button>
-                  </div>
-                  <pre className="max-h-52 overflow-auto whitespace-pre-wrap rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-300">
-                    {rawLog.length > 0 ? rawLog.join('\n\n') : '(empty)'}
-                  </pre>
-                </div>
               </div>
             </div>
           </motion.div>

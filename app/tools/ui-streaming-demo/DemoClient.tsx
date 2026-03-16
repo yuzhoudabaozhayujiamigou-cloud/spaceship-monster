@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import { StreamBoard, type StreamBlock, type UIGranularity } from "./StreamBlocks";
 
@@ -27,6 +28,8 @@ type UIEvent =
 type Block = StreamBlock;
 type StopReason = "user" | "restart";
 type DoneInfo = { source: UIDoneSource | "unknown"; provider: UIProviderBranch };
+type VizPoint = { id: number; label: string; chars: number; deltaChars: number; cps: number };
+type ActionTone = "primary" | "neutral" | "danger" | "info" | "warning";
 
 const GRANULARITY_OPTIONS: UIGranularity[] = ["brief", "balanced", "detailed"];
 const GRANULARITY_SET: ReadonlySet<UIGranularity> = new Set(GRANULARITY_OPTIONS);
@@ -165,6 +168,8 @@ const MAX_AUTO_RECONNECT_ATTEMPTS = 1;
 const SESSION_ID_STORAGE_KEY = "ui-stream-demo-session-id";
 const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const RAW_EVENT_LOG_LIMIT = 240;
+const VISUAL_WINDOW_SIZE = 24;
+const VISUAL_GOAL_CHARS = 900;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -278,6 +283,167 @@ function parseSSEFrame(frame: string): UIEvent | null {
   }
 }
 
+function buildWavePath(points: VizPoint[]): string {
+  if (points.length === 0) {
+    return "M0,90 L100,90";
+  }
+
+  const maxSpeed = Math.max(...points.map((point) => point.cps), 1);
+  return points
+    .map((point, idx) => {
+      const x = points.length === 1 ? 100 : (idx / Math.max(points.length - 1, 1)) * 100;
+      const normalized = point.cps / maxSpeed;
+      const y = 92 - normalized * 74;
+      return `${idx === 0 ? "M" : "L"}${x},${y}`;
+    })
+    .join(" ");
+}
+
+function toneClasses(tone: ActionTone): string {
+  if (tone === "primary") {
+    return "border-cyan-400/45 bg-cyan-400/12 text-cyan-200 hover:border-cyan-300/65";
+  }
+  if (tone === "danger") {
+    return "border-rose-400/35 bg-rose-400/10 text-rose-200 hover:border-rose-300/55";
+  }
+  if (tone === "info") {
+    return "border-sky-400/35 bg-sky-400/10 text-sky-200 hover:border-sky-300/55";
+  }
+  if (tone === "warning") {
+    return "border-amber-400/35 bg-amber-400/10 text-amber-200 hover:border-amber-300/55";
+  }
+  return "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500";
+}
+
+function ActionButton({
+  label,
+  onClick,
+  disabled,
+  tone = "neutral",
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  tone?: ActionTone;
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ y: -1 }}
+      transition={{ duration: 0.14 }}
+      onClick={onClick}
+      disabled={disabled}
+      className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${toneClasses(tone)} disabled:cursor-not-allowed disabled:opacity-40`}
+    >
+      {label}
+    </motion.button>
+  );
+}
+
+function StreamingVisualizer({
+  points,
+  running,
+  totalChars,
+}: {
+  points: VizPoint[];
+  running: boolean;
+  totalChars: number;
+}) {
+  const bars = points.slice(-16);
+  const maxDelta = Math.max(...bars.map((point) => point.deltaChars), 1);
+  const completion = Math.min((totalChars / VISUAL_GOAL_CHARS) * 100, 100);
+  const avgSpeed = bars.length > 0 ? bars.reduce((acc, point) => acc + point.cps, 0) / bars.length : 0;
+
+  return (
+    <motion.section
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5 backdrop-blur-xl"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm uppercase tracking-[0.18em] text-slate-300">UI Streaming Visual Demo</h3>
+          <p className="mt-1 text-xs text-slate-400">Realtime signal for character throughput and completion.</p>
+        </div>
+        <div className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[11px] text-slate-300">
+          {running ? "LIVE" : "IDLE"}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-xl border border-slate-700 bg-slate-950/70 p-3">
+          <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+            <span>Character Speed Wave</span>
+            <span>{avgSpeed.toFixed(1)} chars/sec avg</span>
+          </div>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-36 w-full">
+            <defs>
+              <linearGradient id="demoWaveStroke" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="100%" stopColor="#818cf8" />
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="90" x2="100" y2="90" stroke="#334155" strokeWidth="0.7" />
+            <motion.path
+              d={buildWavePath(points)}
+              fill="none"
+              stroke="url(#demoWaveStroke)"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0.2, opacity: 0.7 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            />
+          </svg>
+        </div>
+
+        <div className="rounded-xl border border-slate-700 bg-slate-950/70 p-3">
+          <div className="mb-2 text-xs text-slate-400">Burst Histogram (delta chars / event)</div>
+          <div className="flex h-36 items-end gap-1.5">
+            {bars.length === 0 ? (
+              <div className="w-full rounded-lg border border-dashed border-slate-700 py-5 text-center text-xs text-slate-500">
+                Waiting for stream events...
+              </div>
+            ) : (
+              bars.map((point) => {
+                const barHeight = Math.max((point.deltaChars / maxDelta) * 100, point.deltaChars > 0 ? 8 : 2);
+                return (
+                  <motion.div
+                    key={point.id}
+                    layout
+                    initial={{ height: 0, opacity: 0.4 }}
+                    animate={{ height: `${barHeight}%`, opacity: 1 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="flex-1 rounded-t-sm bg-gradient-to-t from-cyan-500/75 to-sky-300/80"
+                    title={`${point.deltaChars} chars @ ${point.label}`}
+                  />
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <div className="flex items-center justify-between text-xs text-slate-400">
+          <span>Stream completeness</span>
+          <span>{Math.round(completion)}%</span>
+        </div>
+        <div className="h-2 rounded-full bg-slate-800">
+          <motion.div
+            className="h-2 rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400"
+            initial={{ width: 0 }}
+            animate={{ width: `${completion}%` }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+          />
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
 export default function DemoClient() {
   const [prompt, setPrompt] = useState(
     "Explain how streaming UI patches improves perceived performance for dashboards.",
@@ -294,6 +460,7 @@ export default function DemoClient() {
   const [autoReconnectEnabled, setAutoReconnectEnabled] = useState(true);
   const [apiEndpoint, setApiEndpoint] = useState(API_STREAM_PATH);
   const [lastDoneInfo, setLastDoneInfo] = useState<DoneInfo | null>(null);
+  const [vizPoints, setVizPoints] = useState<VizPoint[]>([]);
 
   const runningRef = useRef(false);
   const doneSeenRef = useRef(false);
@@ -301,6 +468,7 @@ export default function DemoClient() {
   const stopRequestedRef = useRef(false);
   const stopReasonRef = useRef<StopReason | null>(null);
   const restartGranularityRef = useRef<UIGranularity | null>(null);
+  const vizRef = useRef<{ chars: number; at: number }>({ chars: 0, at: Date.now() });
 
   function setRunningState(next: boolean) {
     runningRef.current = next;
@@ -310,6 +478,27 @@ export default function DemoClient() {
   function appendRawLog(entry: string) {
     const line = `${new Date().toISOString()} ${entry}`;
     setRawLog((prev) => [...prev.slice(-(RAW_EVENT_LOG_LIMIT - 1)), line]);
+  }
+
+  function pushVizPoint(chars: number) {
+    const now = Date.now();
+    const prev = vizRef.current;
+    const safeChars = Math.max(chars, 0);
+
+    if (safeChars === prev.chars && vizPoints.length > 0) {
+      return;
+    }
+
+    const deltaChars = Math.max(safeChars - prev.chars, 0);
+    const deltaMs = Math.max(now - prev.at, 1);
+    const cps = deltaChars / (deltaMs / 1000);
+    const label = new Date(now).toISOString().slice(14, 19);
+
+    vizRef.current = { chars: safeChars, at: now };
+    setVizPoints((previous) => [
+      ...previous.slice(-(VISUAL_WINDOW_SIZE - 1)),
+      { id: now, label, chars: safeChars, deltaChars, cps },
+    ]);
   }
 
   function applyEvent(evt: UIEvent, options?: { logAsRaw?: boolean }) {
@@ -328,6 +517,9 @@ export default function DemoClient() {
       if (evt.id === "granularity" && isGranularity(evt.value)) {
         setGranularity(evt.value);
       }
+      if (evt.id === "chars" && typeof evt.value === "number") {
+        pushVizPoint(evt.value);
+      }
       return;
     }
 
@@ -335,6 +527,12 @@ export default function DemoClient() {
       setBlocks((prev) => ({ ...prev, [evt.id]: { ...(prev[evt.id] || {}), ...(evt.patch || {}) } }));
       if (evt.id === "granularity" && isGranularity(evt.patch?.value)) {
         setGranularity(evt.patch.value);
+      }
+      if (evt.id === "chars" && typeof evt.patch?.value === "number") {
+        pushVizPoint(evt.patch.value);
+      }
+      if (evt.id === "answer" && typeof evt.patch?.content === "string") {
+        pushVizPoint(evt.patch.content.length);
       }
       return;
     }
@@ -377,6 +575,8 @@ export default function DemoClient() {
     doneSeenRef.current = false;
     setError(null);
     setStatus("Idle");
+    setVizPoints([]);
+    vizRef.current = { chars: 0, at: Date.now() };
     if (options?.clearRawLog) {
       setRawLog([]);
     }
@@ -629,137 +829,191 @@ export default function DemoClient() {
   }
 
   const blockList = useMemo(() => Object.values(blocks), [blocks]);
+  const generatedChars = useMemo(() => {
+    const charsBlock = blocks.chars;
+    const fromKpi = typeof charsBlock?.value === "number" ? charsBlock.value : 0;
+    const answerBlock = blocks.answer;
+    const fromAnswer = typeof answerBlock?.content === "string" ? answerBlock.content.length : 0;
+    return Math.max(fromKpi, fromAnswer);
+  }, [blocks]);
 
   return (
-    <div className="space-y-5">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-        <label htmlFor="prompt" className="mb-2 block text-sm text-zinc-300">
-          Prompt
-        </label>
-        <textarea
-          id="prompt"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          rows={3}
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-900 p-3 text-sm text-zinc-100 outline-none focus:border-emerald-500"
-          placeholder="Describe the UI you want the stream to generate"
-        />
+    <div className="relative overflow-hidden rounded-[30px] border border-slate-800 bg-slate-950 text-slate-50">
+      <div className="pointer-events-none absolute inset-0 opacity-90">
+        <div className="absolute -top-24 left-1/3 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-indigo-500/10 blur-3xl" />
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-        <div className="mb-2 text-sm text-zinc-300">Granularity (switch triggers a new API request)</div>
-        <div className="flex flex-wrap gap-2">
-          {GRANULARITY_OPTIONS.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => {
-                void switchGranularity(opt);
+      <div className="relative p-4 sm:p-6 lg:p-8">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
+          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Streaming Workbench</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm text-slate-400">
+            Live SSE orchestration with structured blocks, animated transitions, and throughput visual telemetry.
+          </p>
+        </motion.div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+          <motion.aside
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.22, delay: 0.04 }}
+            className="space-y-4"
+          >
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-xl">
+              <label htmlFor="prompt" className="mb-2 block text-xs uppercase tracking-[0.16em] text-slate-400">
+                Prompt
+              </label>
+              <textarea
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                rows={6}
+                className="w-full rounded-2xl border border-slate-800 bg-slate-900/50 p-3 text-sm text-slate-50 outline-none transition focus:border-cyan-400/60"
+                placeholder="Describe the UI you want the stream to generate"
+              />
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-xl">
+              <div className="mb-2 text-xs uppercase tracking-[0.16em] text-slate-400">Granularity</div>
+              <div className="flex flex-wrap gap-2">
+                {GRANULARITY_OPTIONS.map((opt) => (
+                  <motion.button
+                    key={opt}
+                    whileTap={{ scale: 0.96 }}
+                    whileHover={{ y: -1 }}
+                    transition={{ duration: 0.14 }}
+                    onClick={() => {
+                      void switchGranularity(opt);
+                    }}
+                    className={`rounded-xl border px-3 py-2 text-xs transition ${
+                      opt === granularity
+                        ? "border-cyan-400/50 bg-cyan-400/12 text-cyan-200"
+                        : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
+                    }`}
+                  >
+                    {opt}
+                  </motion.button>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-xl">
+              <div className="mb-3 text-xs uppercase tracking-[0.16em] text-slate-400">Controls</div>
+              <div className="grid grid-cols-2 gap-2">
+                <ActionButton
+                  label={running ? "Streaming..." : "Start API Stream"}
+                  onClick={() => {
+                    void streamFromApi();
+                  }}
+                  tone="primary"
+                  disabled={running}
+                />
+                <ActionButton label="Stop" onClick={() => requestStop("user")} disabled={!running} tone="danger" />
+                <ActionButton
+                  label="Fallback Replay"
+                  onClick={() => {
+                    void replayLocal();
+                  }}
+                  disabled={running}
+                  tone="info"
+                />
+                <ActionButton
+                  label="Reset"
+                  onClick={() => reset({ clearRawLog: false })}
+                  disabled={running}
+                  tone="neutral"
+                />
+                <ActionButton label="Clear Session" onClick={clearSession} disabled={running} tone="warning" />
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-xl">
+              <label className="flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={autoReconnectEnabled}
+                  onChange={(e) => setAutoReconnectEnabled(e.target.checked)}
+                  disabled={running}
+                  className="h-4 w-4 rounded border-slate-600 bg-slate-900"
+                />
+                Auto reconnect once on interruption
+              </label>
+              <div className="mt-3 space-y-1 text-xs text-slate-400">
+                <div>Status: {status}</div>
+                <div>Endpoint: {apiEndpoint}</div>
+                <div>Inactivity timeout: {Math.round(STREAM_INACTIVITY_TIMEOUT_MS / 1000)}s</div>
+              </div>
+            </section>
+          </motion.aside>
+
+          <motion.section
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.24, delay: 0.06 }}
+            className="space-y-4 lg:border-l lg:border-slate-800 lg:pl-6"
+          >
+            <AnimatePresence mode="wait">
+              {error ? (
+                <motion.div
+                  key="stream-error"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="rounded-2xl border border-rose-400/35 bg-rose-500/10 px-4 py-3 text-sm text-rose-100"
+                >
+                  {error}
+                </motion.div>
+              ) : lastDoneInfo ? (
+                <motion.div
+                  key="stream-done"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="rounded-2xl border border-emerald-400/35 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100"
+                >
+                  Stream completed with source <span className="font-semibold">{lastDoneInfo.source}</span> and
+                  provider <span className="font-semibold">{lastDoneInfo.provider}</span>.
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="stream-status"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3 text-sm text-slate-300"
+                >
+                  Ready for stream execution.
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <StreamingVisualizer points={vizPoints} running={running} totalChars={generatedChars} />
+
+            <StreamBoard
+              blocks={blockList}
+              layout={layout}
+              granularity={granularity}
+              isGranularityOption={isGranularity}
+              onGranularityChange={(next) => {
+                void switchGranularity(next);
               }}
-              className={`rounded-md px-3 py-1 text-xs ${
-                opt === granularity
-                  ? "border border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
-                  : "border border-zinc-700 bg-zinc-900 text-zinc-300"
-              }`}
-            >
-              {opt}
-            </button>
-          ))}
+            />
+
+            <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 backdrop-blur-xl">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-xs uppercase tracking-[0.16em] text-slate-400">Raw Event Log</div>
+                <ActionButton label="Clear Log" onClick={() => setRawLog([])} tone="neutral" />
+              </div>
+              <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-2xl border border-slate-800 bg-slate-950/80 p-3 text-xs text-slate-300">
+                {rawLog.length > 0 ? rawLog.join("\n\n") : "(empty)"}
+              </pre>
+            </section>
+
+            {done && <div className="text-sm text-emerald-300">Stream finished (ui.done)</div>}
+          </motion.section>
         </div>
       </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-2xl font-semibold">{title}</h2>
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => {
-              void streamFromApi();
-            }}
-            className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300"
-          >
-            {running ? "Streaming..." : "Start API Stream"}
-          </button>
-          <button
-            onClick={() => {
-              requestStop("user");
-            }}
-            disabled={!running}
-            className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-sm text-rose-300 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Stop
-          </button>
-          <button
-            onClick={() => {
-              void replayLocal();
-            }}
-            disabled={running}
-            className="rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-sm text-sky-300 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Local Fallback Replay
-          </button>
-          <button
-            onClick={() => reset({ clearRawLog: false })}
-            disabled={running}
-            className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Reset
-          </button>
-          <button
-            onClick={clearSession}
-            disabled={running}
-            className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Clear Session
-          </button>
-        </div>
-      </div>
-
-      <label className="flex items-center gap-2 text-sm text-zinc-300">
-        <input
-          type="checkbox"
-          checked={autoReconnectEnabled}
-          onChange={(e) => setAutoReconnectEnabled(e.target.checked)}
-          disabled={running}
-          className="h-4 w-4 rounded border-zinc-700 bg-zinc-900"
-        />
-        Auto reconnect once on interruption
-      </label>
-
-      <div className="text-sm text-zinc-400">Status: {status}</div>
-      <div className="text-xs text-zinc-500">Endpoint: {apiEndpoint}</div>
-      {lastDoneInfo && (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
-          ✓ Stream completed — Source: <span className="font-semibold">{lastDoneInfo.source}</span>, Provider: <span className="font-semibold">{lastDoneInfo.provider}</span>
-        </div>
-      )}
-      <div className="text-xs text-zinc-500">Inactivity timeout: {Math.round(STREAM_INACTIVITY_TIMEOUT_MS / 1000)}s</div>
-      {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
-
-      <StreamBoard
-        blocks={blockList}
-        layout={layout}
-        granularity={granularity}
-        isGranularityOption={isGranularity}
-        onGranularityChange={(next) => {
-          void switchGranularity(next);
-        }}
-      />
-
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm text-zinc-300">Raw Event Log</div>
-          <button
-            onClick={() => setRawLog([])}
-            className="rounded-md border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-zinc-300"
-          >
-            Clear Log
-          </button>
-        </div>
-        <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-zinc-900/70 p-3 text-xs text-zinc-300">
-          {rawLog.length > 0 ? rawLog.join("\n\n") : "(empty)"}
-        </pre>
-      </div>
-
-      {done && <div className="text-sm text-emerald-300">Stream finished (ui.done)</div>}
     </div>
   );
 }

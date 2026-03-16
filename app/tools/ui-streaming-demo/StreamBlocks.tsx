@@ -1,4 +1,7 @@
-"use client";
+﻿"use client";
+
+import type { ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 export type UIGranularity = "brief" | "balanced" | "detailed";
 export type StreamBlock = { id: string; blockType: string; [k: string]: unknown };
@@ -16,7 +19,9 @@ type StreamBoardProps = {
   isGranularityOption: (value: unknown) => value is UIGranularity;
 };
 
-const CHART_COLORS = ["#34d399", "#60a5fa", "#f59e0b", "#f472b6"] as const;
+const CHART_COLORS = ["#38bdf8", "#22d3ee", "#a78bfa", "#f59e0b"] as const;
+const PANEL_SHELL =
+  "rounded-2xl border border-slate-800 bg-slate-900/50 p-5 backdrop-blur-xl shadow-[0_24px_80px_-40px_rgba(15,23,42,0.92)]";
 
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) {
@@ -39,13 +44,16 @@ function resolveColumn(block: StreamBlock, useTwoColumn: boolean): ColumnName {
   if (!useTwoColumn) {
     return "full";
   }
+
   const provided = typeof block.column === "string" ? block.column : "";
   if (provided === "left" || provided === "right" || provided === "full") {
     return provided;
   }
+
   if (block.blockType === "table" || block.blockType === "control") {
     return "full";
   }
+
   return "left";
 }
 
@@ -63,6 +71,7 @@ function resolveChartPayload(block: StreamBlock): ChartPayload {
       if (!item || typeof item !== "object") {
         return null;
       }
+
       const row = item as Record<string, unknown>;
       return {
         name: typeof row.name === "string" ? row.name : `Series ${index + 1}`,
@@ -70,26 +79,67 @@ function resolveChartPayload(block: StreamBlock): ChartPayload {
       };
     })
     .filter((item): item is ChartSeries => item !== null);
+
   return { type, labels, series };
 }
 
-function TextBlock({ block }: { block: StreamBlock }) {
+function Panel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="text-sm text-zinc-400">{String(block.title ?? "Text")}</div>
-      <div className="mt-2 whitespace-pre-wrap text-sm text-zinc-100">{String(block.content ?? "")}</div>
-    </div>
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className={`${PANEL_SHELL}${className ? ` ${className}` : ""}`}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+function TextBlock({ block }: { block: StreamBlock }) {
+  const title = String(block.title ?? "Text");
+  const content = String(block.content ?? "");
+
+  return (
+    <Panel>
+      <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">{title}</div>
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={`${block.id}-${content.length}`}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
+          className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-100"
+        >
+          {content}
+        </motion.p>
+      </AnimatePresence>
+    </Panel>
   );
 }
 
 function KpiBlock({ block }: { block: StreamBlock }) {
   const value = block.value;
   const displayValue = typeof value === "number" ? value.toLocaleString() : value === undefined ? "-" : String(value);
+
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="text-sm text-zinc-400">{String(block.label ?? block.title ?? "KPI")}</div>
-      <div className="mt-1 text-2xl font-mono text-zinc-100">{displayValue}</div>
-    </div>
+    <Panel>
+      <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">{String(block.label ?? block.title ?? "KPI")}</div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`${block.id}-${displayValue}`}
+          initial={{ opacity: 0.35, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0.2 }}
+          transition={{ duration: 0.18 }}
+          className="mt-2 text-3xl font-semibold text-slate-50"
+        >
+          {displayValue}
+        </motion.div>
+      </AnimatePresence>
+    </Panel>
   );
 }
 
@@ -105,47 +155,52 @@ function ControlBlock({
   isGranularityOption: (value: unknown) => value is UIGranularity;
 }) {
   const options = Array.isArray(block.options) ? block.options : [];
+
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="mb-2 text-sm text-zinc-400">{String(block.title ?? "Control")}</div>
+    <Panel>
+      <div className="mb-3 text-[11px] uppercase tracking-[0.16em] text-slate-400">{String(block.title ?? "Control")}</div>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const value = String(option);
           const isActive = value === String(block.value ?? granularity) || value === granularity;
           const canUse = isGranularityOption(value);
           return (
-            <button
+            <motion.button
               key={value}
+              whileTap={{ scale: 0.97 }}
+              whileHover={{ y: -1 }}
+              transition={{ duration: 0.14 }}
               onClick={() => {
                 if (canUse) {
                   onGranularityChange(value);
                 }
               }}
               disabled={!canUse}
-              className={`rounded-md px-3 py-1 text-xs ${
+              className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${
                 isActive
-                  ? "border border-emerald-500/40 bg-emerald-500/20 text-emerald-300"
-                  : "border border-zinc-700 bg-zinc-800 text-zinc-300"
-              } disabled:cursor-not-allowed disabled:opacity-40`}
+                  ? "border-cyan-400/45 bg-cyan-400/10 text-cyan-200 shadow-[0_0_0_1px_rgba(34,211,238,0.25)]"
+                  : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500 hover:text-slate-100"
+              } disabled:cursor-not-allowed disabled:opacity-45`}
             >
               {value}
-            </button>
+            </motion.button>
           );
         })}
       </div>
-    </div>
+    </Panel>
   );
 }
 
 function MetricGroupBlock({ block }: { block: StreamBlock }) {
   const metrics = Array.isArray(block.metrics) ? block.metrics : [];
+
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="text-sm text-zinc-400">{String(block.title ?? "Compare Metrics")}</div>
-      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <Panel>
+      <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">{String(block.title ?? "Compare Metrics")}</div>
+      <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {metrics.length === 0 ? (
-          <div className="col-span-2 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4 text-center text-zinc-500 lg:col-span-4">
-            No metrics available
+          <div className="col-span-2 rounded-xl border border-slate-700/70 bg-slate-950/50 p-6 text-center text-slate-400 lg:col-span-4">
+            No metrics available.
           </div>
         ) : (
           metrics.map((metric, idx) => {
@@ -169,21 +224,28 @@ function MetricGroupBlock({ block }: { block: StreamBlock }) {
                   ? "text-amber-300"
                   : tone === "bad"
                     ? "text-rose-300"
-                    : "text-zinc-400";
+                    : "text-slate-400";
             const deltaIcon = hasDelta && deltaNumber > 0 ? "↑" : hasDelta && deltaNumber < 0 ? "↓" : "";
+
             return (
-              <div key={`${label}_${idx}`} className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 transition-all hover:border-zinc-700">
-                <div className="text-[11px] uppercase tracking-wide text-zinc-500">{label}</div>
-                <div className="mt-1 text-xl font-semibold text-zinc-100">{value}</div>
-                <div className={`mt-1 text-xs font-medium ${deltaClass}`}>
+              <motion.article
+                key={`${label}_${idx}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: idx * 0.02 }}
+                className="rounded-xl border border-slate-700/80 bg-slate-950/55 p-3"
+              >
+                <div className="text-[10px] uppercase tracking-[0.16em] text-slate-400">{label}</div>
+                <div className="mt-2 text-2xl font-semibold text-slate-50">{value}</div>
+                <div className={`mt-1 text-xs ${deltaClass}`}>
                   {hasDelta ? `${deltaIcon} ${deltaNumber >= 0 ? "+" : ""}${Math.round(deltaNumber)}` : "—"}
                 </div>
-              </div>
+              </motion.article>
             );
           })
         )}
       </div>
-    </div>
+    </Panel>
   );
 }
 
@@ -193,34 +255,47 @@ function LineChart({ payload }: { payload: ChartPayload }) {
   const max = allValues.length > 0 ? Math.max(...allValues) : 1;
   const min = allValues.length > 0 ? Math.min(...allValues) : 0;
   const span = max - min || 1;
+
   return (
     <div className="space-y-3">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-44 w-full rounded-lg border border-zinc-800 bg-zinc-900/60 p-2">
-        <line x1="0" y1="95" x2="100" y2="95" stroke="#3f3f46" strokeWidth="0.7" />
-        {series.map((item, seriesIndex) => {
-          const points = item.data
-            .map((value, idx) => {
-              const total = Math.max(item.data.length - 1, 1);
-              const x = (idx / total) * 100;
-              const y = 92 - ((value - min) / span) * 82;
-              return `${x},${y}`;
-            })
-            .join(" ");
-          return (
-            <polyline
-              key={`${item.name}_${seriesIndex}`}
-              fill="none"
-              stroke={CHART_COLORS[seriesIndex % CHART_COLORS.length]}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              points={points}
-            />
-          );
-        })}
-      </svg>
-      <div className="flex items-center justify-between">
-        <div className="grid flex-1 grid-cols-3 gap-2 text-[11px] text-zinc-500 md:grid-cols-6">
+      <div className="rounded-xl border border-slate-700/80 bg-slate-950/55 p-3">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-48 w-full">
+          <defs>
+            <linearGradient id="chartGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#818cf8" stopOpacity="0.95" />
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="95" x2="100" y2="95" stroke="#334155" strokeWidth="0.6" />
+          {series.map((item, seriesIndex) => {
+            const points = item.data
+              .map((value, idx) => {
+                const total = Math.max(item.data.length - 1, 1);
+                const x = (idx / total) * 100;
+                const y = 92 - ((value - min) / span) * 82;
+                return `${x},${y}`;
+              })
+              .join(" ");
+            return (
+              <motion.polyline
+                key={`${item.name}_${seriesIndex}`}
+                fill="none"
+                stroke={seriesIndex === 0 ? "url(#chartGlow)" : CHART_COLORS[seriesIndex % CHART_COLORS.length]}
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={points}
+                initial={{ pathLength: 0, opacity: 0.4 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              />
+            );
+          })}
+        </svg>
+      </div>
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="grid flex-1 grid-cols-3 gap-2 text-[11px] text-slate-300 md:grid-cols-6">
           {payload.labels.slice(-6).map((label, idx) => (
             <div key={`${label}_${idx}`} className="truncate">
               {label}
@@ -228,10 +303,10 @@ function LineChart({ payload }: { payload: ChartPayload }) {
           ))}
         </div>
         {series.length > 0 && (
-          <div className="ml-3 flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {series.map((item, idx) => (
-              <div key={`legend_${idx}`} className="flex items-center gap-1 text-[10px] text-zinc-400">
-                <div className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+              <div key={`legend_${idx}`} className="flex items-center gap-1.5 text-[11px] text-slate-200">
+                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: CHART_COLORS[idx % CHART_COLORS.length] }} />
                 <span>{item.name}</span>
               </div>
             ))}
@@ -247,18 +322,26 @@ function BarChart({ payload }: { payload: ChartPayload }) {
   const firstSeries = payload.series[0];
   const values = firstSeries ? firstSeries.data : [];
   const max = Math.max(...values, 1);
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {labels.map((label, idx) => {
         const value = values[idx] ?? 0;
         const width = Math.max((value / max) * 100, value > 0 ? 4 : 0);
         return (
-          <div key={`${label}_${idx}`} className="grid grid-cols-[96px_1fr_56px] items-center gap-2 text-xs">
-            <span className="truncate text-zinc-400" title={label}>{label}</span>
-            <div className="h-3 rounded-full bg-zinc-800">
-              <div className="h-3 rounded-full bg-sky-400 transition-all duration-300" style={{ width: `${width}%` }} />
+          <div key={`${label}_${idx}`} className="grid grid-cols-[90px_1fr_54px] items-center gap-3 text-xs">
+            <span className="truncate text-slate-300" title={label}>
+              {label}
+            </span>
+            <div className="h-3 overflow-hidden rounded-full bg-slate-800/90">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400"
+                initial={{ width: 0 }}
+                animate={{ width: `${width}%` }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              />
             </div>
-            <span className="text-right font-mono text-zinc-300">{value.toLocaleString()}</span>
+            <span className="text-right font-mono text-slate-100">{value.toLocaleString()}</span>
           </div>
         );
       })}
@@ -268,18 +351,21 @@ function BarChart({ payload }: { payload: ChartPayload }) {
 
 function ChartBlock({ block }: { block: StreamBlock }) {
   const payload = resolveChartPayload(block);
-  const hasData = payload.series.length > 0 && payload.series.some(s => s.data.length > 0);
+  const hasData = payload.series.length > 0 && payload.series.some((entry) => entry.data.length > 0);
+
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="mb-3 text-sm text-zinc-400">{String(block.title ?? "Chart")}</div>
+    <Panel>
+      <div className="mb-4 text-[11px] uppercase tracking-[0.16em] text-slate-400">{String(block.title ?? "Chart")}</div>
       {!hasData ? (
-        <div className="flex h-44 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900/60 text-zinc-500">
-          No chart data available
+        <div className="flex h-44 items-center justify-center rounded-xl border border-slate-700/80 bg-slate-950/55 text-slate-400">
+          No chart data available.
         </div>
+      ) : payload.type === "bar" ? (
+        <BarChart payload={payload} />
       ) : (
-        payload.type === "bar" ? <BarChart payload={payload} /> : <LineChart payload={payload} />
+        <LineChart payload={payload} />
       )}
-    </div>
+    </Panel>
   );
 }
 
@@ -293,6 +379,7 @@ function TableBlock({ block }: { block: StreamBlock }) {
       if (!column || typeof column !== "object") {
         return null;
       }
+
       const row = column as Record<string, unknown>;
       const key = String(row.key ?? `col_${idx}`);
       const label = String(row.label ?? key);
@@ -300,38 +387,37 @@ function TableBlock({ block }: { block: StreamBlock }) {
       return { key, label, align };
     })
     .filter((item): item is { key: string; label: string; align: "left" | "right" } => item !== null);
-
   const rows = Array.isArray(block.rows) ? block.rows : [];
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-      <div className="mb-3 text-sm text-zinc-400">{String(block.title ?? "Table")}</div>
-      <div className="overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-900/50">
-        <table className="min-w-full divide-y divide-zinc-800 text-sm">
-          <thead className="bg-zinc-950/60 text-zinc-300">
+    <Panel>
+      <div className="mb-3 text-[11px] uppercase tracking-[0.16em] text-slate-400">{String(block.title ?? "Table")}</div>
+      <div className="overflow-x-auto rounded-xl border border-slate-700/80 bg-slate-950/60">
+        <table className="min-w-full divide-y divide-slate-800 text-sm">
+          <thead className="bg-slate-900/65 text-slate-300">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide ${column.align === "right" ? "text-right" : "text-left"}`}
+                  className={`px-4 py-3 text-[11px] uppercase tracking-[0.16em] ${column.align === "right" ? "text-right" : "text-left"}`}
                 >
                   {column.label}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-800 text-zinc-200">
+          <tbody className="divide-y divide-slate-800/90 text-slate-100">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-3 py-4 text-center text-zinc-500">
-                  No data available
+                <td colSpan={Math.max(columns.length, 1)} className="px-4 py-6 text-center text-slate-400">
+                  No data available.
                 </td>
               </tr>
             ) : (
               rows.map((row, rowIndex) => {
                 const item = row && typeof row === "object" ? (row as Record<string, unknown>) : {};
                 return (
-                  <tr key={`row_${rowIndex}`} className="hover:bg-zinc-800/30 transition-colors">
+                  <tr key={`row_${rowIndex}`} className="transition hover:bg-slate-900/70">
                     {columns.map((column) => {
                       const value = item[column.key];
                       const text =
@@ -339,7 +425,7 @@ function TableBlock({ block }: { block: StreamBlock }) {
                       return (
                         <td
                           key={`${rowIndex}_${column.key}`}
-                          className={`px-3 py-2 ${column.align === "right" ? "text-right font-mono" : "text-left"}`}
+                          className={`px-4 py-3 ${column.align === "right" ? "text-right font-mono" : "text-left"}`}
                         >
                           {text}
                         </td>
@@ -352,15 +438,15 @@ function TableBlock({ block }: { block: StreamBlock }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Panel>
   );
 }
 
 function UnknownBlock({ block }: { block: StreamBlock }) {
   return (
-    <pre className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-3 text-xs text-zinc-300">
-      {JSON.stringify(block, null, 2)}
-    </pre>
+    <Panel className="p-3">
+      <pre className="overflow-auto text-xs text-slate-300">{JSON.stringify(block, null, 2)}</pre>
+    </Panel>
   );
 }
 
@@ -403,6 +489,18 @@ function RenderBlock({
   return <UnknownBlock block={block} />;
 }
 
+function EmptyState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`${PANEL_SHELL} flex min-h-28 items-center justify-center text-sm text-slate-400`}
+    >
+      No blocks to display yet. Start stream to see structured updates.
+    </motion.div>
+  );
+}
+
 export function StreamBoard({
   blocks,
   layout,
@@ -416,45 +514,63 @@ export function StreamBoard({
     return (
       <div className="space-y-4">
         {blocks.length === 0 ? (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-8 text-center text-zinc-500">
-            No blocks to display. Start a stream to see content.
-          </div>
+          <EmptyState />
         ) : (
-          blocks.map((block) => (
-            <RenderBlock
-              key={block.id}
-              block={block}
-              granularity={granularity}
-              onGranularityChange={onGranularityChange}
-              isGranularityOption={isGranularityOption}
-            />
-          ))
+          <AnimatePresence mode="popLayout">
+            {blocks.map((block) => (
+              <motion.div
+                layout
+                key={block.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.18 }}
+              >
+                <RenderBlock
+                  block={block}
+                  granularity={granularity}
+                  onGranularityChange={onGranularityChange}
+                  isGranularityOption={isGranularityOption}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-2">
       {blocks.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-8 text-center text-zinc-500 lg:col-span-2">
-          No blocks to display. Start a stream to see content.
+        <div className="lg:col-span-2">
+          <EmptyState />
         </div>
       ) : (
-        blocks.map((block) => {
-          const column = resolveColumn(block, true);
-          const className = column === "full" ? "lg:col-span-2" : "";
-          return (
-            <div key={block.id} className={className}>
-              <RenderBlock
-                block={block}
-                granularity={granularity}
-                onGranularityChange={onGranularityChange}
-                isGranularityOption={isGranularityOption}
-              />
-            </div>
-          );
-        })
+        <AnimatePresence mode="popLayout">
+          {blocks.map((block) => {
+            const column = resolveColumn(block, true);
+            const className = column === "full" ? "lg:col-span-2" : "";
+            return (
+              <motion.div
+                layout
+                key={block.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.18 }}
+                className={className}
+              >
+                <RenderBlock
+                  block={block}
+                  granularity={granularity}
+                  onGranularityChange={onGranularityChange}
+                  isGranularityOption={isGranularityOption}
+                />
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       )}
     </div>
   );

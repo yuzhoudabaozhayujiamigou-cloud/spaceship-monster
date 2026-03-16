@@ -42,38 +42,42 @@ const FAQS = [
 
 export default function UIStreamingDemoPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-6 text-zinc-100">
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 p-6 text-slate-50">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-3xl" />
+      </div>
       <FaqJsonLd faqs={FAQS.map((faq) => ({ question: faq.question, answer: faq.answer }))} />
-      <main className="mx-auto max-w-4xl">
+      <main className="relative mx-auto max-w-6xl">
         <div className="mb-8">
-          <Link href="/tools" className="text-zinc-400 transition-colors hover:text-zinc-100">
+          <Link href="/tools" className="text-slate-400 transition-colors hover:text-slate-100">
             ← Back to tools
           </Link>
         </div>
 
-        <h1 className="mb-2 text-4xl font-bold">UI Streaming Demo</h1>
-        <p className="mb-8 text-zinc-400">
+        <h1 className="mb-2 text-4xl font-semibold tracking-tight sm:text-5xl">UI Streaming Demo</h1>
+        <p className="mb-8 max-w-3xl text-slate-400">
           Test a practical UI streaming flow that calls <code>/api/ui-stream</code> and incrementally renders
-          structured SSE events into text and KPI cards.
+          structured SSE events into a split-pane workbench with live visual telemetry.
         </p>
 
-        <section className="mb-8 rounded-xl border border-zinc-800 bg-zinc-950/40 p-5">
+        <section className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 backdrop-blur-xl">
           <h2 className="text-xl font-semibold">Start / Abort / Retry / Fallback</h2>
-          <ul className="mt-3 space-y-2 text-sm leading-relaxed text-zinc-300">
+          <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-300">
             <li>
-              <span className="font-semibold text-zinc-100">Start:</span> Click <code>Start API Stream</code> to send
+              <span className="font-semibold text-slate-100">Start:</span> Click <code>Start API Stream</code> to send
               the prompt and render incoming events in real time.
             </li>
             <li>
-              <span className="font-semibold text-zinc-100">Abort:</span> Click <code>Reset</code> to clear the current
-              run and return to <code>Idle</code> so you can start again cleanly.
+              <span className="font-semibold text-slate-100">Abort:</span> Click <code>Stop</code> to end the active
+              stream, or <code>Reset</code> to clear the panel states and logs.
             </li>
             <li>
-              <span className="font-semibold text-zinc-100">Retry:</span> Keep{" "}
+              <span className="font-semibold text-slate-100">Retry:</span> Keep{" "}
               <code>Auto reconnect once on interruption</code> enabled to retry one transient failure automatically.
             </li>
             <li>
-              <span className="font-semibold text-zinc-100">Fallback:</span> If upstream streaming is unavailable, the
+              <span className="font-semibold text-slate-100">Fallback:</span> If upstream streaming is unavailable, the
               API switches to fallback events. You can also validate this path with{" "}
               <code>Local Fallback Replay</code>.
             </li>
@@ -82,13 +86,13 @@ export default function UIStreamingDemoPage() {
 
         <DemoClient />
 
-        <section className="mt-10 rounded-xl border border-zinc-800 bg-zinc-950/40 p-5">
+        <section className="mt-10 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 backdrop-blur-xl">
           <h2 className="text-2xl font-semibold">FAQ</h2>
           <div className="mt-4 space-y-4">
             {FAQS.map((faq) => (
-              <article key={faq.question} className="rounded-lg border border-zinc-800 bg-zinc-950/50 p-4">
-                <h3 className="text-sm font-semibold text-zinc-100">{faq.question}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{faq.answer}</p>
+              <article key={faq.question} className="rounded-xl border border-slate-800 bg-slate-950/70 p-4">
+                <h3 className="text-sm font-semibold text-slate-100">{faq.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{faq.answer}</p>
               </article>
             ))}
           </div>

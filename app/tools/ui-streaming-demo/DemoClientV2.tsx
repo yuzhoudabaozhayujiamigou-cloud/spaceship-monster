@@ -435,8 +435,8 @@ export default function DemoClientV2() {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-        <label htmlFor="prompt" className="mb-2 block text-sm text-zinc-300">
+      <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
+        <label htmlFor="prompt" className="mb-2 block text-sm font-medium text-zinc-100">
           Prompt
         </label>
         <textarea
@@ -449,8 +449,8 @@ export default function DemoClientV2() {
         />
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-950/40 p-4">
-        <div className="mb-2 text-sm text-zinc-300">Granularity (switch triggers a new API request)</div>
+      <div className="rounded-xl border border-zinc-700/50 bg-zinc-900 p-4">
+        <div className="mb-2 text-sm text-zinc-100 font-medium">Granularity (switch triggers a new API request)</div>
         <div className="flex flex-wrap gap-2">
           {GRANULARITY_OPTIONS.map((opt) => (
             <button
@@ -459,7 +459,7 @@ export default function DemoClientV2() {
               className={`rounded-md px-3 py-1 text-xs ${
                 opt === granularity
                   ? 'border border-emerald-500/40 bg-emerald-500/15 text-emerald-300'
-                  : 'border border-zinc-700 bg-zinc-900 text-zinc-300'
+                  : 'border border-zinc-700 bg-zinc-800 text-zinc-100'
               }`}
             >
               {opt}
@@ -509,12 +509,12 @@ export default function DemoClientV2() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-zinc-800 bg-zinc-950/40 p-3">
-        <div className="text-xs text-zinc-400">
+      <div className="rounded-lg border border-zinc-700/50 bg-zinc-900 p-3">
+        <div className="text-sm text-zinc-100">
           <span className="font-medium">Status:</span> {status}
         </div>
         {snapshot?.doneInfo && (
-          <div className="mt-1 text-xs text-zinc-500">
+          <div className="mt-1 text-xs text-zinc-300">
             Source: {snapshot.doneInfo.source} | Provider: {snapshot.doneInfo.provider}
           </div>
         )}
