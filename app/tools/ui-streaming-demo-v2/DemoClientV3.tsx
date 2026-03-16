@@ -26,6 +26,7 @@ import { useStreamSnapshot } from '@/hooks/useStreamSnapshot';
 type StopReason = 'user' | 'restart';
 type VizPoint = { id: number; label: string; chars: number; deltaChars: number; cps: number };
 type DemoTone = 'primary' | 'neutral' | 'danger' | 'info';
+type AnimationStyle = 'rotate' | 'pulse' | 'wave' | 'spin' | 'default';
 
 const GRANULARITY_OPTIONS: UIGranularity[] = ['brief', 'balanced', 'detailed'];
 const GRANULARITY_SET: ReadonlySet<UIGranularity> = new Set(GRANULARITY_OPTIONS);
@@ -76,6 +77,32 @@ function buildWavePath(points: VizPoint[]): string {
       return `${idx === 0 ? 'M' : 'L'}${x},${y}`;
     })
     .join(' ');
+}
+
+function detectAnimationStyle(prompt: string): AnimationStyle {
+  const lower = prompt.toLowerCase();
+
+  // 旋转类：地球、星球、自转、旋转
+  if (lower.includes('地球') || lower.includes('自转') || lower.includes('旋转') || lower.includes('星球')) {
+    return 'rotate';
+  }
+
+  // 脉冲类：心跳、跳动、脉搏
+  if (lower.includes('心跳') || lower.includes('跳动') || lower.includes('脉搏') || lower.includes('心脏')) {
+    return 'pulse';
+  }
+
+  // 波浪类：海浪、波浪、水波、涟漪
+  if (lower.includes('海浪') || lower.includes('波浪') || lower.includes('水波') || lower.includes('涟漪')) {
+    return 'wave';
+  }
+
+  // 旋转类：螺旋、漩涡
+  if (lower.includes('螺旋') || lower.includes('漩涡') || lower.includes('龙卷风')) {
+    return 'spin';
+  }
+
+  return 'default';
 }
 
 function toneClasses(tone: DemoTone): string {
@@ -197,6 +224,7 @@ export default function DemoClientV3() {
   const [apiEndpoint, setApiEndpoint] = useState(API_STREAM_PATH);
   const [rawLog, setRawLog] = useState<string[]>([]);
   const [vizPoints, setVizPoints] = useState<VizPoint[]>([]);
+  const [animationStyle, setAnimationStyle] = useState<AnimationStyle>('default');
 
   const snapshot = useStreamSnapshot(sessionId);
 
@@ -267,6 +295,9 @@ export default function DemoClientV3() {
     stopRequestedRef.current = false;
     stopReasonRef.current = null;
     restartGranularityRef.current = null;
+
+    // 检测动画风格
+    setAnimationStyle(detectAnimationStyle(prompt));
 
     markStreamActive(sessionId);
     setStatus('Connecting...');
@@ -550,12 +581,35 @@ export default function DemoClientV3() {
                   <h3 className="text-sm font-medium text-slate-200">实时可视化总览</h3>
 
                   <div className="grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-                    {/* 波形图 */}
+                    {/* 波形图 - 根据输入内容动态动画 */}
                     <div className="relative h-24 rounded-xl bg-slate-950/50 border border-slate-800/30 overflow-hidden">
-                      <svg
+                      <motion.svg
                         viewBox="0 0 100 100"
                         preserveAspectRatio="none"
                         className="absolute inset-0 w-full h-full"
+                        animate={
+                          animationStyle === 'rotate'
+                            ? { rotateY: [0, 360], scale: [1, 1.05, 1] }
+                            : animationStyle === 'pulse'
+                            ? { scale: [1, 1.15, 1], opacity: [0.8, 1, 0.8] }
+                            : animationStyle === 'wave'
+                            ? { x: [0, 10, 0, -10, 0], y: [0, -5, 0, 5, 0] }
+                            : animationStyle === 'spin'
+                            ? { rotate: [0, 360] }
+                            : { scale: [1, 1.02, 1] }
+                        }
+                        transition={
+                          animationStyle === 'rotate'
+                            ? { rotateY: { duration: 8, repeat: Infinity, ease: "linear" }, scale: { duration: 4, repeat: Infinity, ease: "easeInOut" } }
+                            : animationStyle === 'pulse'
+                            ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+                            : animationStyle === 'wave'
+                            ? { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                            : animationStyle === 'spin'
+                            ? { duration: 4, repeat: Infinity, ease: "linear" }
+                            : { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                        }
+                        style={{ transformStyle: "preserve-3d" }}
                       >
                         <defs>
                           <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -572,7 +626,7 @@ export default function DemoClientV3() {
                           vectorEffect="non-scaling-stroke"
                           className="drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
                         />
-                      </svg>
+                      </motion.svg>
                     </div>
 
                     {/* 柱状图 */}
