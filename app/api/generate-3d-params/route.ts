@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-});
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new OpenAI({
+    apiKey,
+    baseURL: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,6 +23,23 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid prompt' },
         { status: 400 }
       );
+    }
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      // IMPORTANT: avoid throwing during build/preview when env var is missing.
+      // Return safe defaults so the route stays deployable.
+      return NextResponse.json({
+        params: {
+          color: '#3b82f6',
+          distort: 0.5,
+          speed: 2,
+          autoRotate: true,
+          autoRotateSpeed: 2,
+        },
+        mode: 'fallback',
+        reason: 'OPENAI_API_KEY is not configured',
+      });
     }
 
     console.log('[3D Params] Calling OpenAI API...');
